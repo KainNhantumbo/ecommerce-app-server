@@ -6,6 +6,7 @@ import { DataSource } from 'typeorm';
 import { UserModule } from './user/user.module';
 import { User } from './user/user.entity';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
       synchronize: process.env.NODE_ENV === 'development',
       entities: [User]
     }),
-    UserModule
+    UserModule,
+    AuthModule
   ],
   controllers: [],
   providers: []
