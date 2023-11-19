@@ -10,8 +10,8 @@ async function bootstrap() {
 
   app.enableCors(corsOptions)
   app.use(helmet());
-  app.use(compression());
   app.use(cookieParser());
+  app.use(compression());
   app.setGlobalPrefix('/api/v1');
 
   await app.listen(3000);
