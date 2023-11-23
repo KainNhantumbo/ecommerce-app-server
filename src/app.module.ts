@@ -7,10 +7,21 @@ import { UserModule } from './user/user.module';
 import { User } from './user/user.entity';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
+import { CacheModule, CacheInterceptor } from '@nestjs/cache-manager';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
+    CacheModule.register({
+      ttl: 15000,
+      max: 20,
+      isGlobal: true
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+      cache: true
+    }),
     ThrottlerModule.forRoot([
       {
         ttl: 60 * 1000,
@@ -31,7 +42,7 @@ import { AuthModule } from './auth/auth.module';
     AuthModule
   ],
   controllers: [],
-  providers: []
+  providers: [{ provide: APP_INTERCEPTOR, useClass: CacheInterceptor }]
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {}
