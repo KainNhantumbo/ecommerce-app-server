@@ -1,5 +1,5 @@
 export default () => ({
-  port: parseInt(process.env.PORT, 10) || 3000,
+  port: +process.env.PORT || 8080,
   environment: process.env.NODE_ENV,
   domains: process.env.ALLOWED_DOMAINS,
   refreshToken: process.env.REFRESH_TOKEN,
@@ -8,7 +8,7 @@ export default () => ({
   refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPDATE,
   database: {
     host: process.env.DATABASE_HOST,
-    port: parseInt(process.env.DATABASE_PORT, 10) || 5432,
+    port: +process.env.DATABASE_PORT || 5432,
     database: process.env.DATABASE,
     username: process.env.DATABASE_USERNAME,
     password: process.env.DATABASE_PASSWORD 

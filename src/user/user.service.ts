@@ -12,12 +12,12 @@ import { CreateUserDto } from './dto/create-user.dto';
 export class UserService {
   constructor(private dataSource: DataSource) {}
 
-  findOne(email: string): Promise<User | null> {
-    return this.dataSource.getRepository(User).findOneBy({ email });
+  async findOne(email: string): Promise<User | null> {
+    return await this.dataSource.getRepository(User).findOneBy({ email });
   }
 
-  findOneById(id: number): Promise<User | null> {
-    return this.dataSource.getRepository(User).findOneBy({ id });
+  async findOneById(id: number): Promise<User | null> {
+    return await this.dataSource.getRepository(User).findOneBy({ id });
   }
 
   async create(createUserDto: CreateUserDto): Promise<CreateUserDto> {
