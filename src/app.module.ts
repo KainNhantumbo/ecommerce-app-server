@@ -9,6 +9,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { CacheModule, CacheInterceptor } from '@nestjs/cache-manager';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -39,7 +40,8 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
       entities: [User]
     }),
     UserModule,
-    AuthModule
+    AuthModule,
+    HealthModule
   ],
   controllers: [],
   providers: [{ provide: APP_INTERCEPTOR, useClass: CacheInterceptor }]
