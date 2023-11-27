@@ -16,18 +16,20 @@ import { DecodedPayload } from 'src/types';
 
 @Injectable()
 export class AuthService {
+  private isProduction: boolean;
+
   constructor(
     private usersService: UserService,
     private config: ConfigService,
     private jwt: JwtService
-  ) {}
-
-  async signIn({ email, password }: SignInDto) {
-    const isProduction =
+  ) {
+    this.isProduction =
       this.config.getOrThrow<string>('NODE_ENV') === 'development'
         ? false
         : true;
+  }
 
+  async signIn({ email, password }: SignInDto) {
     const user = await this.usersService.findOneByEmail(email);
 
     if (!user)
@@ -44,7 +46,7 @@ export class AuthService {
     return {
       access_token,
       refresh_token,
-      isProduction,
+      isProduction: this.isProduction,
       user: { id: user.id, email: user.email, name: user.username }
     };
   }
@@ -85,6 +87,11 @@ export class AuthService {
       access_token,
       user: { id: user.id, email: user.email, name: user.username }
     };
+  }
+
+  signOut(token: unknown) {
+    if (!token) throw new UnauthorizedException();
+    return { isProduction: this.isProduction };
   }
 
   signAccessToken(userId: number, email: string): Promise<string> {

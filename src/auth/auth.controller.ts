@@ -1,4 +1,13 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  Res
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/sign-in.dto';
 import { CreateUserDto } from '../user/dto/create-user.dto';
@@ -34,7 +43,23 @@ export class AuthController {
 
   @Post('/refresh')
   async revalidateToken(@Req() req: Request) {
-    const token = req.cookies['token'];
+    const token = req.cookies['token'] as unknown;
     return this.authService.revalidateToken(token);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete('/sign-out')
+  async signOut(@Req() req: Request, @Res() res: Response) {
+    const token = req.cookies['token'] as unknown;
+    const { isProduction } = this.authService.signOut(token);
+
+    res
+      .status(204)
+      .clearCookie('token', {
+        httpOnly: true,
+        secure: isProduction && true,
+        sameSite: 'strict'
+      })
+      .json({ message: 'Logged out successfully.' });
   }
 }
