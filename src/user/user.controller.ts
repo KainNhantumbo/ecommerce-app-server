@@ -1,5 +1,3 @@
-import { CreateUserDto } from './dto/create-user.dto';
-import { UserService } from './user.service';
 import {
   Body,
   Controller,
@@ -8,10 +6,14 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  Post
+  UseGuards
 } from '@nestjs/common';
+import { UserService } from './user.service';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthGuard } from '@nestjs/passport';
 
-@Controller('user')
+@Controller('users')
+@UseGuards(AuthGuard('jwt'))
 export class UserController {
   constructor(private userService: UserService) {}
 
@@ -20,15 +22,10 @@ export class UserController {
     return this.userService.findOneById(id);
   }
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
-
   @Patch('/:id')
   updateOne(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateUserDto: CreateUserDto
+    @Body() updateUserDto: UpdateUserDto
   ) {
     return this.userService.updateOne(id, updateUserDto);
   }

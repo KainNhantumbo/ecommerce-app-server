@@ -1,35 +1,41 @@
 import {
-  BadRequestException,
   Injectable,
+  NotFoundException,
   UnprocessableEntityException
 } from '@nestjs/common';
 import { User } from './user.entity';
 import { DataSource } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
   constructor(private dataSource: DataSource) {}
 
-  async findOne(email: string): Promise<User | null> {
-    return await this.dataSource.getRepository(User).findOneBy({ email });
+  async findOneByEmail(email: string): Promise<User | null> {
+    const user: User | null = await this.dataSource
+      .getRepository(User)
+      .findOne({ where: { email } });
+
+    return user;
   }
 
   async findOneById(id: number): Promise<User | null> {
-    return await this.dataSource.getRepository(User).findOneBy({ id });
-  }
+    const user: User | null = await this.dataSource
+      .getRepository(User)
+      .findOne({ where: { id } });
 
-  async create(createUserDto: CreateUserDto): Promise<CreateUserDto> {
-    return await this.dataSource.transaction(async (manager) => {
-      return await manager.save({ ...createUserDto });
-    });
+    if (!user)
+      throw new NotFoundException(
+        `User with provided ID ${id}, was not found.`
+      );
+
+    return user;
   }
 
   async updateOne(id: number, updateUserDto: UpdateUserDto): Promise<void> {
-    const result = await this.dataSource.transaction(async (manager) => {
-      return await manager.update(User, { id }, { ...updateUserDto });
-    });
+    const result = await this.dataSource
+      .getRepository(User)
+      .update({ id }, { ...updateUserDto });
 
     if (result.affected < 1)
       throw new UnprocessableEntityException(
@@ -37,14 +43,14 @@ export class UserService {
       );
   }
 
-  async deleteOne(id: number): Promise<void> {
-    const result = await this.dataSource.transaction(async (manager) => {
-      return await manager.delete(User, { id });
-    });
+  async deleteOne(id: number): Promise<{ message: string }> {
+    const user = await this.dataSource
+      .getRepository(User)
+      .findOne({ where: { id } });
 
-    if (result.affected < 1)
-      throw new BadRequestException(
-        'Failed to delete your account. Please, try again later.'
-      );
+    if (user === null) throw new NotFoundException('Account not found.');
+
+    await user.remove();
+    return { message: 'Account deleted successfully.' };
   }
 }

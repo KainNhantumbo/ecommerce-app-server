@@ -8,11 +8,11 @@ import {
 } from 'class-validator';
 
 export class UpdateUserDto {
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(64)
   @MinLength(3)
-  @IsOptional()
   username: string;
 
   @IsOptional()
