@@ -12,6 +12,7 @@ import { User } from '../user/user.entity';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { QueryFailedError } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
+import { DecodedPayload } from 'src/types';
 
 @Injectable()
 export class AuthService {
@@ -21,9 +22,11 @@ export class AuthService {
     private jwt: JwtService
   ) {}
 
-  async signIn({ email, password }: SignInDto): Promise<unknown> {
+  async signIn({ email, password }: SignInDto) {
     const isProduction =
-      this.config.get<string>('NODE_ENV') === 'development' ? false : true;
+      this.config.getOrThrow<string>('NODE_ENV') === 'development'
+        ? false
+        : true;
 
     const user = await this.usersService.findOneByEmail(email);
 
@@ -35,11 +38,14 @@ export class AuthService {
     const match = await comparePasswords(password, user.password);
     if (!match) throw new UnauthorizedException();
 
-    const token = await this.signToken(user.id, user.email);
+    const access_token = await this.signAccessToken(user.id, user.email);
+    const refresh_token = await this.signRefreshToken(user.id, user.email);
 
     return {
-      access_token: token,
-      username: user.username
+      access_token,
+      refresh_token,
+      isProduction,
+      user: { id: user.id, email: user.email, name: user.username }
     };
   }
 
@@ -62,14 +68,48 @@ export class AuthService {
     }
   }
 
-  signToken(userId: number, email: string): Promise<string> {
+  async revalidateToken(token: unknown) {
+    if (!token) throw new UnauthorizedException();
+
+    const payload = this.jwt.decode<DecodedPayload | null>(String(token));
+
+    if (!payload) throw new UnauthorizedException();
+
+    const user = await this.usersService.findOneByEmail(payload.email);
+
+    if (!user) throw new NotFoundException('Resource not found.');
+
+    const access_token = await this.signAccessToken(user.id, user.email);
+
+    return {
+      access_token,
+      user: { id: user.id, email: user.email, name: user.username }
+    };
+  }
+
+  signAccessToken(userId: number, email: string): Promise<string> {
     const payload = { id: userId, email };
-    const ACCESS_TOKEN = this.config.getOrThrow('ACCESS_TOKEN');
-    const ACCESS_TOKEN_EXPDATE = this.config.getOrThrow('ACCESS_TOKEN_EXPDATE');
+    const ACCESS_TOKEN = this.config.getOrThrow<string>('ACCESS_TOKEN');
+    const ACCESS_TOKEN_EXPDATE = this.config.getOrThrow<string>(
+      'ACCESS_TOKEN_EXPDATE'
+    );
 
     return this.jwt.signAsync(payload, {
       secret: ACCESS_TOKEN,
       expiresIn: ACCESS_TOKEN_EXPDATE
+    });
+  }
+
+  signRefreshToken(userId: number, email: string): Promise<string> {
+    const payload = { id: userId, email };
+    const REFRESH_TOKEN = this.config.getOrThrow<string>('REFRESH_TOKEN');
+    const REFRESH_TOKEN_EXPDATE = this.config.getOrThrow<string>(
+      'REFRESH_TOKEN_EXPDATE'
+    );
+
+    return this.jwt.signAsync(payload, {
+      secret: REFRESH_TOKEN,
+      expiresIn: REFRESH_TOKEN_EXPDATE
     });
   }
 }
