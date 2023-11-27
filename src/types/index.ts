@@ -1,1 +1,1 @@
-export type DecodedPayload = { id: string } | null | undefined;
+export type DecodedPayload = { id: number, email: string } 

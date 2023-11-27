@@ -23,6 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       .exist({ where: { id: payload.id } });
 
     if (!user) throw new UnauthorizedException();
+
     return payload;
   }
 }
