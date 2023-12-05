@@ -8,17 +8,22 @@ import {
 } from 'class-validator';
 
 export class UpdateUserDto {
-  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  @MaxLength(64)
   @MinLength(3)
-  username: string;
+  @MaxLength(64)
+  firstName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(3)
+  @MaxLength(64)
+  lastName: string;
 
   @IsOptional()
   @IsString()
   @IsStrongPassword()
-  @MaxLength(21)
   @MinLength(8)
+  @MaxLength(21)
   password: string;
 }

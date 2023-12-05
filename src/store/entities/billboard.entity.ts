@@ -4,26 +4,25 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  BaseEntity
+  BaseEntity,
+  OneToOne
 } from 'typeorm';
-import { Store } from './store.entity';
+import { Image } from 'src/product/entities/image.entity';
+import { Category } from './category.entity';
 
 @Entity()
 export class Billboard extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
-  
-  @Column({ unique: true })
-  store: Store;
 
   @Column()
   label: string;
-  
-  @Column()
-  imageUrl: string;
-  
-  @Column()
-  categories: string;
+
+  @OneToOne(() => Image)
+  image: Image;
+
+  @OneToOne(() => Category)
+  category: Category;
 
   @CreateDateColumn({})
   createdAt: string;

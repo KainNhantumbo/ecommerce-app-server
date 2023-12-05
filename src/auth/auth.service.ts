@@ -47,17 +47,22 @@ export class AuthService {
       access_token,
       refresh_token,
       isProduction: this.isProduction,
-      user: { id: user.id, email: user.email, name: user.username }
+      user: {
+        id: user.id,
+        email: user.email,
+        name: `${user.firstName} ${user.lastName}`
+      }
     };
   }
 
   async signUp(createUserDto: CreateUserDto) {
     try {
-      const { password, email, username } = createUserDto;
+      const { password, email, lastName, firstName } = createUserDto;
       const hash = await encryptPassword(password);
 
       const user = new User();
-      user.username = username;
+      user.firstName = firstName;
+      user.lastName = lastName;
       user.email = email;
       user.password = hash;
 
@@ -85,7 +90,11 @@ export class AuthService {
 
     return {
       access_token,
-      user: { id: user.id, email: user.email, name: user.username }
+      user: {
+        id: user.id,
+        email: user.email,
+        name: `${user.firstName} ${user.lastName}`
+      }
     };
   }
 

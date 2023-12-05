@@ -4,6 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { User } from '../user/user.entity';
 import { DataSource } from 'typeorm';
+import { DecodedPayload } from '../types';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -17,7 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(payload: { id: number; username: string }) {
+  validate(payload: DecodedPayload) {
     const user = this.dataSource
       .getRepository(User)
       .exist({ where: { id: payload.id } });

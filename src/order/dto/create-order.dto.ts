@@ -11,7 +11,8 @@ export class CreateOrderDto {
   storeId: number;
 
   @IsArray({ each: true, message: 'Please provide order items' })
-  orderItems: string[];
+  @IsNumber({ allowInfinity: false, allowNaN: false })
+  orderItems: number[];
 
   @IsBoolean()
   isPaid: boolean;

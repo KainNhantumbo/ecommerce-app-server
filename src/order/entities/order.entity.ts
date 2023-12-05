@@ -5,25 +5,30 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
-  Relation,
   JoinColumn,
-  OneToMany
+  OneToMany,
+  ManyToOne
 } from 'typeorm';
 import { OrderItem } from './orderItem.entity';
+import { Store } from '../../store/entities/store.entity';
 
 @Entity()
 export class Order extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: false })
-  storeId: number;
+  @ManyToOne(() => Store, (store) => store.orders)
+  @JoinColumn({ referencedColumnName: 'id' })
+  storeId: Store;
 
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
-  @JoinColumn()
-  orderItems: Relation<Order[]>;
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.orderId, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+  })
+  orderItems: OrderItem[];
 
-  @Column({ type: 'bool' })
+  @Column({ type: 'bool', default: false })
   isPaid: boolean;
 
   @Column({ nullable: false })
