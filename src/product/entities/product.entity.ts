@@ -8,13 +8,14 @@ import {
   OneToMany,
   JoinColumn,
   ManyToOne,
-  OneToOne
+  OneToOne,
+  Relation
 } from 'typeorm';
 import { Store } from '../../store/entities/store.entity';
 import { Image } from './image.entity';
 import { Color } from './color.entity';
 import { Size } from './size.entity';
-import { Category } from 'src/store/entities/category.entity';
+import { Category } from '../../store/entities/category.entity';
 
 @Entity()
 export class Product extends BaseEntity {
@@ -24,11 +25,11 @@ export class Product extends BaseEntity {
   @ManyToOne(() => Store, (store) => store.products, {
     cascade: true
   })
-  storeId: Store;
+  storeId: Relation<Store>;
 
   @OneToOne(() => Category)
   @JoinColumn()
-  categoryId: Category;
+  categoryId: Relation<Category>;
 
   @Column({ default: '' })
   name: string;
@@ -43,22 +44,21 @@ export class Product extends BaseEntity {
   isArchived: boolean;
 
   @OneToMany(() => Color, (colors) => colors.product, { cascade: true })
-  colors: Color[];
+  colors: Relation<Color[]>;
 
   @OneToMany(() => Image, (image) => image.product, {
     cascade: true,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
   })
-  images: Image[];
+  images: Relation<Image[]>;
 
   @OneToMany(() => Size, (size) => size.products)
-  @JoinColumn()
-  size: Size[];
+  size: Relation<Size[]>;
 
   @OneToOne(() => Category)
   @JoinColumn()
-  category: Category;
+  category: Relation<Category>;
 
   @CreateDateColumn({})
   createdAt: string;

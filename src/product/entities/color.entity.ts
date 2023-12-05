@@ -6,7 +6,8 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  JoinColumn
+  JoinColumn,
+  Relation
 } from 'typeorm';
 import { Product } from './product.entity';
 
@@ -17,7 +18,7 @@ export class Color extends BaseEntity {
 
   @ManyToOne(() => Product, (product) => product.colors, { cascade: true })
   @JoinColumn({ referencedColumnName: 'id' })
-  product: Product[];
+  product: Relation<Product[]>;
 
   @Column()
   name: string;

@@ -7,7 +7,8 @@ import {
   BaseEntity,
   JoinColumn,
   OneToMany,
-  ManyToOne
+  ManyToOne,
+  Relation
 } from 'typeorm';
 import { OrderItem } from './orderItem.entity';
 import { Store } from '../../store/entities/store.entity';
@@ -19,14 +20,14 @@ export class Order extends BaseEntity {
 
   @ManyToOne(() => Store, (store) => store.orders)
   @JoinColumn({ referencedColumnName: 'id' })
-  storeId: Store;
+  storeId: Relation<Store>;
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.orderId, {
     cascade: true,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
   })
-  orderItems: OrderItem[];
+  orderItems: Relation<OrderItem[]>;
 
   @Column({ type: 'bool', default: false })
   isPaid: boolean;

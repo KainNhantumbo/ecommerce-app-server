@@ -5,7 +5,8 @@ import {
   UpdateDateColumn,
   PrimaryGeneratedColumn,
   ManyToOne,
-  Column
+  Column,
+  Relation
 } from 'typeorm';
 import { Product } from './product.entity';
 
@@ -14,10 +15,8 @@ export class Image extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Product, (product) => product.images, {
-    cascade: true
-  })
-  product: Product;
+  @ManyToOne(() => Product, (product) => product.images)
+  product: Relation<Product>;
 
   @Column()
   publicId: string;

@@ -7,13 +7,13 @@ import {
   BaseEntity,
   OneToMany,
   JoinColumn,
-  OneToOne
+  OneToOne,
+  Relation
 } from 'typeorm';
 import { Order } from '../../order/entities/order.entity';
 import { Product } from '../../product/entities/product.entity';
 import { Size } from '../../product/entities/size.entity';
 import { Category } from './category.entity';
-import { User } from '../../user/user.entity';
 
 @Entity()
 export class Store extends BaseEntity {
@@ -23,8 +23,7 @@ export class Store extends BaseEntity {
   @Column({ length: 64 })
   name: string;
 
-  @OneToOne(() => User, (user) => user.id)
-  userId: string;
+  userId:string
 
   @Column()
   billboards: string;
@@ -34,14 +33,14 @@ export class Store extends BaseEntity {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
   })
-  category: Category;
+  category: Relation<Category>;
 
   @OneToMany(() => Product, (product) => product.storeId, {
     cascade: true,
     onDelete: 'CASCADE'
   })
   @JoinColumn({ referencedColumnName: 'id' })
-  products: Product[];
+  products: Relation<Product[]>;
 
   @OneToMany(() => Size, (sizes) => sizes.storeId, {
     cascade: true,
@@ -49,14 +48,14 @@ export class Store extends BaseEntity {
     onUpdate: 'CASCADE'
   })
   @JoinColumn()
-  sizes: Size[];
+  sizes: Relation<Size[]>;
 
   @OneToMany(() => Order, (order) => order.storeId, {
     cascade: true,
     onDelete: 'CASCADE'
   })
   @JoinColumn()
-  orders: Order[];
+  orders: Relation<Order[]>;
 
   @CreateDateColumn({})
   createdAt: string;
