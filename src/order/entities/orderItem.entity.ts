@@ -1,27 +1,30 @@
 import {
   Entity,
-  Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
-  Relation,
   JoinColumn,
-  ManyToOne
+  ManyToOne,
+  OneToOne
 } from 'typeorm';
 import { Order } from './order.entity';
+import { Product } from 'src/product/entities/product.entity';
 
 @Entity()
 export class OrderItem extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Order, (order) => order.orderItems)
-  @JoinColumn()
-  order: Relation<Order>;
+  @ManyToOne(() => Order, (order) => order.orderItems, {
+    cascade: true
+  })
+  @JoinColumn({ referencedColumnName: 'id' })
+  orderId: Order;
 
-  @Column({ nullable: false })
-  productId: number;
+  @OneToOne(() => Product)
+  @JoinColumn()
+  productId: Product;
 
   @CreateDateColumn({})
   createdAt: string;
