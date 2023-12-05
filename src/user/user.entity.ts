@@ -5,27 +5,19 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
-  OneToOne,
   JoinColumn
 } from 'typeorm';
-import { Store } from 'src/store/entities/store.entity';
 
 @Entity()
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => Store, {
-    cascade: true,
-    onDelete: 'CASCADE'
-  })
-  storeId: Store;
-
   @JoinColumn()
-  @Column({ length: 64 })
+  @Column({ length: 64, default: '' })
   firstName: string;
 
-  @Column({ length: 64 })
+  @Column({ length: 64, default: '' })
   lastName: string;
 
   @Column({ unique: true })

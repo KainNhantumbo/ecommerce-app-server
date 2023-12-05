@@ -5,11 +5,12 @@ import {
   UpdateDateColumn,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne
+  ManyToOne,
+  Relation
   
 } from 'typeorm';
 import { Product } from './product.entity';
-import { Store } from 'src/store/entities/store.entity';
+import { Store } from '../../store/entities/store.entity';
 
 @Entity()
 export class Size extends BaseEntity {
@@ -19,7 +20,7 @@ export class Size extends BaseEntity {
   @ManyToOne(() => Store, (store) => store.sizes, {
     cascade: true
   })
-  storeId: Store
+  storeId: Relation<Store>;
 
   @Column()
   name: string;
@@ -28,7 +29,7 @@ export class Size extends BaseEntity {
   value: string;
 
   @ManyToOne(() => Product, (product) => product.size, { cascade: true })
-  products: Product[]
+  products: Relation<Product[]>;
 
   @CreateDateColumn()
   createdAt: string;

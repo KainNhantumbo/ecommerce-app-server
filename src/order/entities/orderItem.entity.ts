@@ -6,10 +6,11 @@ import {
   BaseEntity,
   JoinColumn,
   ManyToOne,
-  OneToOne
+  OneToOne,
+  Relation
 } from 'typeorm';
 import { Order } from './order.entity';
-import { Product } from 'src/product/entities/product.entity';
+import { Product } from '../../product/entities/product.entity';
 
 @Entity()
 export class OrderItem extends BaseEntity {
@@ -20,11 +21,11 @@ export class OrderItem extends BaseEntity {
     cascade: true
   })
   @JoinColumn({ referencedColumnName: 'id' })
-  orderId: Order;
+  orderId: Relation<Order>;
 
   @OneToOne(() => Product)
   @JoinColumn()
-  productId: Product;
+  productId: Relation<Product>;
 
   @CreateDateColumn({})
   createdAt: string;

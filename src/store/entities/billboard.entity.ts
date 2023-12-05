@@ -5,7 +5,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
-  OneToOne
+  OneToOne,
+  Relation
 } from 'typeorm';
 import { Image } from 'src/product/entities/image.entity';
 import { Category } from './category.entity';
@@ -19,10 +20,10 @@ export class Billboard extends BaseEntity {
   label: string;
 
   @OneToOne(() => Image)
-  image: Image;
+  image: Relation<Image>;
 
   @OneToOne(() => Category)
-  category: Category;
+  category: Relation<Category>;
 
   @CreateDateColumn({})
   createdAt: string;
