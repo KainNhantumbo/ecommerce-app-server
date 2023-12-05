@@ -10,6 +10,9 @@ import { AuthModule } from './auth/auth.module';
 import { CacheModule, CacheInterceptor } from '@nestjs/cache-manager';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { HealthModule } from './health/health.module';
+import { StoreModule } from './store/store.module';
+import { ProductModule } from './product/product.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -41,7 +44,10 @@ import { HealthModule } from './health/health.module';
     }),
     UserModule,
     AuthModule,
-    HealthModule
+    HealthModule,
+    StoreModule,
+    ProductModule,
+    OrderModule
   ],
   controllers: [],
   providers: [{ provide: APP_INTERCEPTOR, useClass: CacheInterceptor }]
