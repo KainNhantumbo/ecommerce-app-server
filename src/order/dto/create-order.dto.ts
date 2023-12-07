@@ -7,12 +7,9 @@ import {
 } from 'class-validator';
 
 export class CreateOrderDto {
-  @IsNumber({ allowInfinity: false, allowNaN: false })
-  storeId: number;
-
   @IsArray({ each: true, message: 'Please provide order items' })
   @IsNumber({ allowInfinity: false, allowNaN: false })
-  orderItems: number[];
+  items: number[];
 
   @IsBoolean()
   isPaid: boolean;

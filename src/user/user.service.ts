@@ -42,7 +42,6 @@ export class UserService {
       throw new UnprocessableEntityException(
         'Failed to update your data. Please, try again later.'
       );
-
   }
 
   async deleteOne(id: number): Promise<{ message: string }> {
