@@ -129,6 +129,17 @@ export class BillboardService {
   }
 
   async remove(id: number): Promise<void> {
+    const foundBillboard = await this.billboard.findOne({
+      where: { id },
+      relations: { image: true }
+    });
+
+    if (!foundBillboard) throw new NotFoundException('Billboard not found');
+
+    await cloudinaryAPI.uploader.destroy(foundBillboard.image.publicId, {
+      invalidate: true
+    });
+
     const result = await this.billboard.delete(id);
 
     if (result.affected < 1)

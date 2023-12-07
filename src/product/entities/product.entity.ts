@@ -21,7 +21,7 @@ export class Product extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ default: '' })
+  @Column({ nullable: false, unique: true })
   name: string;
 
   @Column({ default: 0 })
@@ -40,7 +40,7 @@ export class Product extends BaseEntity {
   images: Relation<Image[]>;
 
   @OneToMany(() => Size, (size) => size.products)
-  size: Relation<Size[]>;
+  sizes: Relation<Size[]>;
 
   @OneToOne(() => Category, (category) => category.product)
   @JoinColumn()

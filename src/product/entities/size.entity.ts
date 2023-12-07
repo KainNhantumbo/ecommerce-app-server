@@ -22,7 +22,7 @@ export class Size extends BaseEntity {
   @Column()
   value: string;
 
-  @ManyToOne(() => Product, (product) => product.size, {
+  @ManyToOne(() => Product, (product) => product.sizes, {
     cascade: true,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
