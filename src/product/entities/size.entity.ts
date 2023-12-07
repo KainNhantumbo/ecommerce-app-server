@@ -10,17 +10,11 @@ import {
   
 } from 'typeorm';
 import { Product } from './product.entity';
-import { Store } from '../../store/entities/store.entity';
 
 @Entity()
 export class Size extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @ManyToOne(() => Store, (store) => store.sizes, {
-    cascade: true
-  })
-  storeId: Relation<Store>;
 
   @Column()
   name: string;
@@ -28,7 +22,11 @@ export class Size extends BaseEntity {
   @Column()
   value: string;
 
-  @ManyToOne(() => Product, (product) => product.size, { cascade: true })
+  @ManyToOne(() => Product, (product) => product.size, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+  })
   products: Relation<Product[]>;
 
   @CreateDateColumn()

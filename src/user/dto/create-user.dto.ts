@@ -4,7 +4,8 @@ import {
   IsEmail,
   IsNotEmpty,
   MaxLength,
-  MinLength
+  MinLength,
+  IsEnum
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -23,6 +24,10 @@ export class CreateUserDto {
   @IsEmail()
   @MaxLength(64)
   email: string;
+
+  @IsString()
+  @IsEnum(['USER', 'ADMIN'])
+  role: string;
 
   @IsString()
   @IsStrongPassword()

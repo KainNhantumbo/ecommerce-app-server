@@ -7,29 +7,19 @@ import {
   BaseEntity,
   OneToMany,
   JoinColumn,
-  ManyToOne,
   OneToOne,
   Relation
 } from 'typeorm';
-import { Store } from '../../store/entities/store.entity';
 import { Image } from './image.entity';
 import { Color } from './color.entity';
 import { Size } from './size.entity';
-import { Category } from '../../store/entities/category.entity';
+import { Category } from './category.entity';
+import { OrderItem } from '../../order/entities/orderItem.entity';
 
 @Entity()
 export class Product extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @ManyToOne(() => Store, (store) => store.products, {
-    cascade: true
-  })
-  storeId: Relation<Store>;
-
-  @OneToOne(() => Category)
-  @JoinColumn()
-  categoryId: Relation<Category>;
 
   @Column({ default: '' })
   name: string;
@@ -43,22 +33,21 @@ export class Product extends BaseEntity {
   @Column({ default: false })
   isArchived: boolean;
 
-  @OneToMany(() => Color, (colors) => colors.product, { cascade: true })
+  @OneToMany(() => Color, (colors) => colors.product)
   colors: Relation<Color[]>;
 
-  @OneToMany(() => Image, (image) => image.product, {
-    cascade: true,
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE'
-  })
+  @OneToMany(() => Image, (image) => image.product)
   images: Relation<Image[]>;
 
   @OneToMany(() => Size, (size) => size.products)
   size: Relation<Size[]>;
 
-  @OneToOne(() => Category)
+  @OneToOne(() => Category, (category) => category.product)
   @JoinColumn()
   category: Relation<Category>;
+
+  @OneToOne(() => OrderItem, (orderItem) => orderItem.product)
+  orderItem: Relation<OrderItem>;
 
   @CreateDateColumn({})
   createdAt: string;

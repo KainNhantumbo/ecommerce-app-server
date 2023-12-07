@@ -23,12 +23,15 @@ export class User extends BaseEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ nullable: false })
   password: string;
 
+  @Column({ enum: ['USER', 'ADMIN'], default: 'USER' })
+  role: string;
+
   @CreateDateColumn({})
-  created_at: string;
+  createdAt: string;
 
   @UpdateDateColumn({})
-  updated_at: string;
+  updatedAt: string;
 }

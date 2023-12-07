@@ -4,15 +4,24 @@ import configuration from './config/configuration';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { UserModule } from './user/user.module';
-import { User } from './user/user.entity';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { CacheModule, CacheInterceptor } from '@nestjs/cache-manager';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { HealthModule } from './health/health.module';
-import { StoreModule } from './store/store.module';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
+
+import { Category } from './product/entities/category.entity';
+import { Product } from './product/entities/product.entity';
+import { Image } from './product/entities/image.entity';
+import { Color } from './product/entities/color.entity';
+import { Size } from './product/entities/size.entity';
+import { Order } from './order/entities/order.entity';
+import { OrderItem } from './order/entities/orderItem.entity';
+import { User } from './user/user.entity';
+import { BillboardModule } from './billboard/billboard.module';
+import { Billboard } from './billboard/entities/billboard.entity';
 
 @Module({
   imports: [
@@ -40,14 +49,24 @@ import { OrderModule } from './order/order.module';
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       synchronize: process.env.NODE_ENV === 'development',
-      entities: [User]
+      entities: [
+        Category,
+        Product,
+        Image,
+        Color,
+        User,
+        Size,
+        Order,
+        OrderItem,
+        Billboard
+      ]
     }),
     UserModule,
     AuthModule,
     HealthModule,
-    StoreModule,
     ProductModule,
-    OrderModule
+    OrderModule,
+    BillboardModule
   ],
   controllers: [],
   providers: [{ provide: APP_INTERCEPTOR, useClass: CacheInterceptor }]

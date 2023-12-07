@@ -18,14 +18,20 @@ export class OrderItem extends BaseEntity {
   id: number;
 
   @ManyToOne(() => Order, (order) => order.orderItems, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+  })
+  @JoinColumn()
+  order: Relation<Order>;
+
+  @OneToOne(() => Product, (product) => product.orderItem, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
     cascade: true
   })
-  @JoinColumn({ referencedColumnName: 'id' })
-  orderId: Relation<Order>;
-
-  @OneToOne(() => Product)
   @JoinColumn()
-  productId: Relation<Product>;
+  product: Relation<Product>;
 
   @CreateDateColumn({})
   createdAt: string;

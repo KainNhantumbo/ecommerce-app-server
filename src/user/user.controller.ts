@@ -18,6 +18,11 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @Get('/')
+  findAll() {
+    return this.userService.findAll();
+  }
+
+  @Get('/user')
   findOneById(@Req() req: Request) {
     const { id } = req['user'] as DecodedPayload;
     return this.userService.findOneById(id);

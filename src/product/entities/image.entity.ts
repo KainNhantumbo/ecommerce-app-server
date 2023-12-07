@@ -15,13 +15,17 @@ export class Image extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Product, (product) => product.images)
+  @ManyToOne(() => Product, (product) => product.images, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+  })
   product: Relation<Product>;
 
-  @Column()
+  @Column({ default: '' })
   publicId: string;
 
-  @Column()
+  @Column({ default: '' })
   url: string;
 
   @CreateDateColumn()

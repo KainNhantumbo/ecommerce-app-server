@@ -4,7 +4,8 @@ import {
   IsStrongPassword,
   IsNotEmpty,
   MaxLength,
-  MinLength
+  MinLength,
+  IsEnum
 } from 'class-validator';
 
 export class UpdateUserDto {
@@ -19,6 +20,12 @@ export class UpdateUserDto {
   @MinLength(3)
   @MaxLength(64)
   lastName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  @IsEnum(['USER', 'ADMIN'])
+  role: string;
 
   @IsOptional()
   @IsString()

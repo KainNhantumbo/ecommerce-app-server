@@ -8,8 +8,7 @@ import {
   OneToOne,
   Relation
 } from 'typeorm';
-import { Image } from 'src/product/entities/image.entity';
-import { Category } from './category.entity';
+import { Image } from '../../product/entities/image.entity';
 
 @Entity()
 export class Billboard extends BaseEntity {
@@ -19,11 +18,8 @@ export class Billboard extends BaseEntity {
   @Column()
   label: string;
 
-  @OneToOne(() => Image)
+  @OneToOne(() => Image, (image) => image)
   image: Relation<Image>;
-
-  @OneToOne(() => Category)
-  category: Relation<Category>;
 
   @CreateDateColumn({})
   createdAt: string;

@@ -4,24 +4,24 @@ import {
   NotFoundException,
   UnauthorizedException
 } from '@nestjs/common';
-import { UserService } from '../user/user.service';
 import { SignInDto } from './dto/sign-in.dto';
 import { comparePasswords, encryptPassword } from '../utils/encrypt-utils';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../user/user.entity';
 import { CreateUserDto } from '../user/dto/create-user.dto';
-import { QueryFailedError } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { DecodedPayload } from 'src/types';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AuthService {
   private isProduction: boolean;
 
   constructor(
-    private usersService: UserService,
     private config: ConfigService,
-    private jwt: JwtService
+    private jwt: JwtService,
+    @InjectRepository(User) private user: Repository<User>
   ) {
     this.isProduction =
       this.config.getOrThrow<string>('NODE_ENV') === 'development'
@@ -30,7 +30,7 @@ export class AuthService {
   }
 
   async signIn({ email, password }: SignInDto) {
-    const user = await this.usersService.findOneByEmail(email);
+    const user = await this.user.findOne({ where: { email } });
 
     if (!user)
       throw new NotFoundException(
@@ -57,16 +57,13 @@ export class AuthService {
 
   async signUp(createUserDto: CreateUserDto) {
     try {
-      const { password, email, lastName, firstName } = createUserDto;
+      const { password, ...rest } = createUserDto;
       const hash = await encryptPassword(password);
-
-      const user = new User();
-      user.firstName = firstName;
-      user.lastName = lastName;
-      user.email = email;
-      user.password = hash;
-
-      return await user.save();
+      const data = this.user.create({
+        ...rest,
+        password: hash
+      });
+      return await data.save();
     } catch (error) {
       if (error instanceof QueryFailedError)
         throw new ForbiddenException('Credencials already taken.');
@@ -82,7 +79,7 @@ export class AuthService {
 
     if (!payload) throw new UnauthorizedException();
 
-    const user = await this.usersService.findOneByEmail(payload.email);
+    const user = await this.user.findOne({ where: { email: payload.email } });
 
     if (!user) throw new NotFoundException('Resource not found.');
 

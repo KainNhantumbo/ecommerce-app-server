@@ -4,6 +4,6 @@ import { Controller, Get } from '@nestjs/common';
 export class HealthController {
   @Get()
   getSatus() {
-    return { code: 'OK', message: 'Server is running.' };
+    return { statusCode: 200, message: 'Server is running...' };
   }
 }
