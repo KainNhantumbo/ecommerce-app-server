@@ -149,9 +149,6 @@ export class ProductService {
       }
     }
 
-    const result = await this.product.delete(id);
-
-    if (result.affected < 1)
-      throw new UnprocessableEntityException('Failed to delete product.');
+    await foundProduct.remove();
   }
 }
