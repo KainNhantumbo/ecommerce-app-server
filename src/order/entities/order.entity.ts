@@ -5,28 +5,17 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
-  JoinColumn,
   OneToMany,
-  ManyToOne,
   Relation
 } from 'typeorm';
 import { OrderItem } from './orderItem.entity';
-import { Store } from '../../store/entities/store.entity';
 
 @Entity()
 export class Order extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Store, (store) => store.orders)
-  @JoinColumn({ referencedColumnName: 'id' })
-  storeId: Relation<Store>;
-
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.orderId, {
-    cascade: true,
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE'
-  })
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
   orderItems: Relation<OrderItem[]>;
 
   @Column({ type: 'bool', default: false })

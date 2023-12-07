@@ -4,8 +4,11 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  BaseEntity
+  BaseEntity,
+  OneToOne,
+  Relation
 } from 'typeorm';
+import { Product } from './product.entity';
 
 @Entity()
 export class Category extends BaseEntity {
@@ -14,6 +17,13 @@ export class Category extends BaseEntity {
 
   @Column()
   name: string;
+
+  @OneToOne(() => Product, (product) => product.category, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    cascade: true
+  })
+  product: Relation<Product>;
 
   @CreateDateColumn({})
   createdAt: string;
