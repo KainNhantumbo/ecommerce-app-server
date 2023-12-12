@@ -1,18 +1,13 @@
-import {
-  IsArray,
-  IsBoolean,
-  IsNotEmpty,
-  IsNumber,
-  IsString
-} from 'class-validator';
+import { IsArray, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class CreateOrderDto {
-  @IsArray({ each: true, message: 'Please provide order items' })
-  @IsNumber({ allowInfinity: false, allowNaN: false })
-  items: number[];
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(5)
+  costumerName: string;
 
-  @IsBoolean()
-  isPaid: boolean;
+  @IsArray({ each: true, message: 'Please provide order items' })
+  items: { productId: number; quantity: number }[];
 
   @IsString({ message: 'Please provide a valid phone number' })
   @IsNotEmpty({ message: 'Please provide your phone number' })

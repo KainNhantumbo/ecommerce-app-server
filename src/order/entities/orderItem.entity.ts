@@ -7,7 +7,8 @@ import {
   JoinColumn,
   ManyToOne,
   OneToOne,
-  Relation
+  Relation,
+  Column
 } from 'typeorm';
 import { Order } from './order.entity';
 import { Product } from '../../product/entities/product.entity';
@@ -32,6 +33,9 @@ export class OrderItem extends BaseEntity {
   })
   @JoinColumn()
   product: Relation<Product>;
+
+  @Column({ type: 'int' })
+  quantity: number;
 
   @CreateDateColumn({})
   createdAt: string;

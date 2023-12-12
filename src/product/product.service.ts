@@ -15,6 +15,7 @@ import { Color } from './entities/color.entity';
 import { Size } from './entities/size.entity';
 import { Category } from './entities/category.entity';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductQueryDto } from './dto/query-product.dto';
 
 @Injectable()
 export class ProductService {
@@ -78,7 +79,7 @@ export class ProductService {
       .save();
   }
 
-  async findAll(): Promise<Product[]> {
+  async findAll(query: ProductQueryDto): Promise<Product[]> {
     return await this.product.find({
       relations: { images: true, category: true, sizes: true, colors: true }
     });
