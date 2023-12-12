@@ -18,6 +18,9 @@ export class Category extends BaseEntity {
   @Column()
   name: string;
 
+  @Column()
+  value: string;
+
   @OneToOne(() => Product, (product) => product.category, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',

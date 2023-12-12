@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
-import { Repository, FindOperator } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderItem } from './entities/orderItem.entity';
 import { Product } from '../product/entities/product.entity';
@@ -17,15 +17,27 @@ export class OrderService {
   async create(createOrderDto: CreateOrderDto) {
     const { items, ...data } = createOrderDto;
 
-    const products = await this.product.find({
-      where: items.map((item) => ({ id: item }))
-    });
+    const cart = await Promise.all(
+      items.map(async (item) => {
+        const product = await this.product.findOne({
+          where: { id: item.productId }
+        });
+
+        return {
+          product,
+          quantity: item.quantity
+        };
+      })
+    );
 
     return this.order
       .create({
         ...data,
-        orderItems: products.map((product) =>
-          this.orderItem.create({ product })
+        orderItems: cart.map((item) =>
+          this.orderItem.create({
+            product: item.product,
+            quantity: item.quantity
+          })
         )
       })
       .save();

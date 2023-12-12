@@ -7,6 +7,7 @@ import {
   MinLength,
   IsEnum
 } from 'class-validator';
+import { roles } from './create-user.dto';
 
 export class UpdateUserDto {
   @IsString()
@@ -24,7 +25,7 @@ export class UpdateUserDto {
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  @IsEnum(['USER', 'ADMIN'])
+  @IsEnum([...roles])
   role: string;
 
   @IsOptional()

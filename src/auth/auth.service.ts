@@ -59,11 +59,11 @@ export class AuthService {
     try {
       const { password, ...rest } = createUserDto;
       const hash = await encryptPassword(password);
-      const data = this.user.create({
+      const newUser = this.user.create({
         ...rest,
         password: hash
       });
-      return await data.save();
+      return await newUser.save();
     } catch (error) {
       if (error instanceof QueryFailedError)
         throw new ForbiddenException('Credencials already taken.');
@@ -86,12 +86,10 @@ export class AuthService {
     const access_token = await this.signAccessToken(user.id, user.email);
 
     return {
-      access_token,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: `${user.firstName} ${user.lastName}`
-      }
+      id: user.id,
+      email: user.email,
+      token: access_token,
+      name: `${user.firstName} ${user.lastName}`
     };
   }
 

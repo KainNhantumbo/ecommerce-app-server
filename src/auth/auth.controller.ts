@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -19,8 +20,12 @@ export class AuthController {
 
   @Post('/sign-in')
   async signIn(@Res() res: Response, @Body() signInDto: SignInDto) {
-    const { access_token, refresh_token, isProduction, user } =
-      await this.authService.signIn(signInDto);
+    const {
+      access_token,
+      refresh_token,
+      isProduction,
+      user: { id, name, email }
+    } = await this.authService.signIn(signInDto);
 
     res
       .status(201)
@@ -31,7 +36,9 @@ export class AuthController {
         expires: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
       })
       .json({
-        user,
+        id,
+        name,
+        email,
         token: access_token
       });
   }
@@ -41,7 +48,7 @@ export class AuthController {
     return this.authService.signUp(createUserDto);
   }
 
-  @Post('/refresh')
+  @Get('/refresh')
   async revalidateToken(@Req() req: Request) {
     const token = req.cookies['token'] as unknown;
     return this.authService.revalidateToken(token);

@@ -8,16 +8,18 @@ import {
   IsEnum
 } from 'class-validator';
 
+export const roles = ['EMPLOYEE', 'USER', 'ADMIN'];
+
 export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(64)
+  @MaxLength(21)
   @MinLength(3)
   firstName: string;
-  
+
   @IsString()
   @IsNotEmpty()
-  @MaxLength(64)
+  @MaxLength(21)
   @MinLength(3)
   lastName: string;
 
@@ -26,12 +28,21 @@ export class CreateUserDto {
   email: string;
 
   @IsString()
-  @IsEnum(['USER', 'ADMIN'])
+  @IsEnum([...roles])
   role: string;
 
   @IsString()
-  @IsStrongPassword()
+  @IsNotEmpty()
+  @IsEnum([...roles])
+  employeeId: string;
+
+  @IsStrongPassword({
+    minLength: 8,
+    minLowercase: 2,
+    minNumbers: 0,
+    minSymbols: 1,
+    minUppercase: 0
+  })
   @MaxLength(21)
-  @MinLength(8)
   password: string;
 }
