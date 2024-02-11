@@ -19,7 +19,6 @@ export class UpdateBillboardDto extends PartialType(CreateBillboardDto) {
 
   @IsString()
   @IsNotEmpty()
-  @IsBase64()
   @IsOptional()
   image?: string;
 }

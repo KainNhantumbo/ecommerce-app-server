@@ -137,8 +137,6 @@ export class BillboardService {
       relations: { image: true }
     });
 
-    console.log(foundBillboard);
-
     if (!foundBillboard) throw new NotFoundException('Billboard not found');
     if (this.isProduction) {
       await cloudinaryAPI.uploader.destroy(foundBillboard.image.publicId, {

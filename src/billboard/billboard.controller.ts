@@ -28,7 +28,6 @@ export class BillboardController {
     return this.billboardService.findAll();
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.billboardService.findOne(+id);
