@@ -1,12 +1,12 @@
 import {
   BaseEntity,
-  Entity,
-  CreateDateColumn,
-  UpdateDateColumn,
-  PrimaryGeneratedColumn,
-  ManyToOne,
   Column,
-  Relation
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Relation,
+  UpdateDateColumn
 } from 'typeorm';
 import { Product } from './product.entity';
 
@@ -22,7 +22,7 @@ export class Image extends BaseEntity {
   })
   product: Relation<Product>;
 
-  @Column({ default: '' })
+  @Column()
   publicId: string;
 
   @Column({ default: '' })

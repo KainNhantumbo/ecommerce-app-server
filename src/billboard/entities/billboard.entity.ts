@@ -6,7 +6,8 @@ import {
   UpdateDateColumn,
   BaseEntity,
   OneToOne,
-  Relation
+  Relation,
+  JoinColumn
 } from 'typeorm';
 import { Image } from '../../product/entities/image.entity';
 
@@ -18,7 +19,8 @@ export class Billboard extends BaseEntity {
   @Column()
   label: string;
 
-  @OneToOne(() => Image, (image) => image)
+  @OneToOne(() => Image, (image) => image, { cascade: true })
+  @JoinColumn()
   image: Relation<Image>;
 
   @CreateDateColumn({})

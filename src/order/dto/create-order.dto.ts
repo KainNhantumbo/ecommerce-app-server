@@ -13,7 +13,7 @@ export class CreateOrderDto {
   @IsNotEmpty({ message: 'Please provide your phone number' })
   phone: string;
 
-  @IsString({ message: 'Please provide a valid adress' })
-  @IsNotEmpty({ message: 'Please provide your adress' })
-  adress: string;
+  @IsString({ message: 'Please provide a valid address' })
+  @IsNotEmpty({ message: 'Please provide your address' })
+  address: string;
 }

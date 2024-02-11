@@ -1,12 +1,12 @@
 import { DocumentBuilder } from '@nestjs/swagger';
 
 export const swaggerDocumentConfig = new DocumentBuilder()
-  .setTitle('Tasks API')
+  .setTitle('Ecommerce API')
   .setDescription(
-    "A full featured API that let's you create your tasks on the fly!!"
+    "A full featured API that let's you manage your ecommerce!!"
   )
   .setVersion('1.0.0')
-  .addTag('tasks')  
+  .addTag('store')
   .setContact(
     'Kain Nhantumbo',
     'codenut-dev.vercel.app',

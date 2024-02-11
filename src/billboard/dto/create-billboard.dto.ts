@@ -15,6 +15,5 @@ export class CreateBillboardDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsBase64()
   image: string;
 }

@@ -25,7 +25,7 @@ export class Order extends BaseEntity {
   phone: string;
 
   @Column({ default: '' })
-  adress: string;
+  address: string;
 
   @CreateDateColumn({})
   createdAt: string;

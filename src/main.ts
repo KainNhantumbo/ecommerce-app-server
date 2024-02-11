@@ -7,8 +7,9 @@ import { corsOptions } from './config/cors';
 import { SwaggerModule } from '@nestjs/swagger';
 import { swaggerDocumentConfig } from './config/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { urlencoded, json } from 'express';
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   const document = SwaggerModule.createDocument(app, swaggerDocumentConfig);
 
@@ -17,6 +18,9 @@ async function bootstrap() {
   app.use(cookieParser());
   app.use(compression());
   app.setGlobalPrefix('/api/v1');
+    app.use(json({ limit: '1mb' }));
+    app.use(urlencoded({ extended: true, limit: '1mb' }));
+
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -25,7 +29,6 @@ async function bootstrap() {
   );
 
   SwaggerModule.setup('api-docs', app, document);
-
   await app.listen(+process.env.PORT || 3000);
 }
 

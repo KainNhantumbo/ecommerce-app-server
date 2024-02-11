@@ -66,7 +66,7 @@ export class AuthService {
       return await newUser.save();
     } catch (error) {
       if (error instanceof QueryFailedError)
-        throw new ForbiddenException('Credencials already taken.');
+        throw new ForbiddenException('Credentials already taken.');
 
       throw error;
     }

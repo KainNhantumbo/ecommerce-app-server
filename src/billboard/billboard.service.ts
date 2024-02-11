@@ -35,12 +35,15 @@ export class BillboardService {
         url: createBillboardDto.image
       });
 
-      return await this.billboard
+      await this.billboard
         .create({
           label: createBillboardDto.label,
           image
         })
         .save();
+
+      image.save();
+      return;
     }
 
     const result = await cloudinaryAPI.uploader.upload(
@@ -134,11 +137,14 @@ export class BillboardService {
       relations: { image: true }
     });
 
-    if (!foundBillboard) throw new NotFoundException('Billboard not found');
+    console.log(foundBillboard);
 
-    await cloudinaryAPI.uploader.destroy(foundBillboard.image.publicId, {
-      invalidate: true
-    });
+    if (!foundBillboard) throw new NotFoundException('Billboard not found');
+    if (this.isProduction) {
+      await cloudinaryAPI.uploader.destroy(foundBillboard.image.publicId, {
+        invalidate: true
+      });
+    }
 
     const result = await this.billboard.delete(id);
 

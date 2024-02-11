@@ -13,7 +13,7 @@ import { CreateBillboardDto } from './dto/create-billboard.dto';
 import { UpdateBillboardDto } from './dto/update-billboard.dto';
 import { AuthGuard } from '@nestjs/passport';
 
-@Controller('billboard')
+@Controller('billboards')
 export class BillboardController {
   constructor(private readonly billboardService: BillboardService) {}
 
