@@ -7,7 +7,6 @@ import {
   Column,
   ManyToOne,
   Relation
-  
 } from 'typeorm';
 import { Product } from './product.entity';
 
@@ -17,16 +16,12 @@ export class Size extends BaseEntity {
   id: number;
 
   @Column()
-  name: string;
+  label: string;
 
   @Column()
   value: string;
 
-  @ManyToOne(() => Product, (product) => product.sizes, {
-    cascade: true,
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE'
-  })
+  @ManyToOne(() => Product, (product) => product.sizes)
   products: Relation<Product[]>;
 
   @CreateDateColumn()

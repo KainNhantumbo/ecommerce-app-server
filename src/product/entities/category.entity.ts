@@ -16,17 +16,10 @@ export class Category extends BaseEntity {
   id: number;
 
   @Column()
-  name: string;
+  label: string;
 
   @Column()
   value: string;
-
-  @OneToOne(() => Product, (product) => product.category, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-    cascade: true
-  })
-  product: Relation<Product>;
 
   @CreateDateColumn({})
   createdAt: string;

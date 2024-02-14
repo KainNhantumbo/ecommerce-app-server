@@ -16,12 +16,11 @@ export class Color extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Product, (product) => product.colors, { cascade: true })
-  @JoinColumn({ referencedColumnName: 'id' })
+  @ManyToOne(() => Product, (product) => product.colors)
   product: Relation<Product[]>;
 
   @Column()
-  name: string;
+  label: string;
 
   @Column()
   value: string;

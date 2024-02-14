@@ -1,6 +1,5 @@
 import {
   IsArray,
-  IsBase64,
   IsBoolean,
   IsNotEmpty,
   IsNumber,
@@ -14,8 +13,8 @@ export class GenericDataDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(2)
-  @MaxLength(8)
-  name: string;
+  @MaxLength(16)
+  label: string;
 
   @IsString()
   @IsNotEmpty()
@@ -28,8 +27,18 @@ export class CreateProductDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
-  @MaxLength(21)
+  @MaxLength(64)
   name: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(256)
+  description: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2048)
+  specs: string;
 
   @IsNumber({ allowInfinity: false, allowNaN: false })
   price: number;
@@ -45,9 +54,8 @@ export class CreateProductDto {
   @IsArray({ each: true })
   colors: GenericDataDto[];
 
-  @IsArray({ each: true })
-  @IsBase64()
-  images: string[];
+  @IsArray()
+  images: { id: string | number; url: string }[];
 
   @IsArray({ each: true })
   sizes: GenericDataDto[];

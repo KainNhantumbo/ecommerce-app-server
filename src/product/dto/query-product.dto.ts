@@ -7,6 +7,18 @@ export class ProductQueryDto {
 
   @IsOptional()
   @IsString()
+  offset?: string;
+
+  @IsOptional()
+  @IsString()
+  limit?: string;
+
+  @IsOptional()
+  @IsString()
+  sort?: string;
+
+  @IsOptional()
+  @IsString()
   color?: string;
 
   @IsOptional()
@@ -20,6 +32,10 @@ export class ProductQueryDto {
   @IsOptional()
   @IsString()
   size?: string;
+
+  @IsOptional()
+  @IsString()
+  fields?: string;
 
   @IsOptional()
   @IsString()

@@ -24,7 +24,13 @@ export class Product extends BaseEntity {
   @Column({ nullable: false, unique: true })
   name: string;
 
-  @Column({ default: 0 })
+  @Column({ nullable: false, length: 256 })
+  description: string;
+
+  @Column({ default: '', length: 2048 })
+  specs: string;
+
+  @Column({})
   price: number;
 
   @Column({ default: false })
@@ -33,20 +39,29 @@ export class Product extends BaseEntity {
   @Column({ default: false })
   isArchived: boolean;
 
-  @OneToMany(() => Color, (colors) => colors.product)
+  @OneToMany(() => Color, (colors) => colors.product, {
+    cascade: true
+  })
+  @JoinColumn()
   colors: Relation<Color[]>;
 
-  @OneToMany(() => Image, (image) => image.product)
+  @OneToMany(() => Image, (image) => image.product, {
+    cascade: true
+  })
+  @JoinColumn()
   images: Relation<Image[]>;
 
-  @OneToMany(() => Size, (size) => size.products)
+  @OneToMany(() => Size, (size) => size.products, { cascade: true })
+  @JoinColumn()
   sizes: Relation<Size[]>;
 
-  @OneToOne(() => Category, (category) => category.product)
+  @OneToOne(() => Category, (category) => category, { cascade: true })
   @JoinColumn()
   category: Relation<Category>;
 
-  @OneToOne(() => OrderItem, (orderItem) => orderItem.product)
+  @OneToOne(() => OrderItem, (orderItem) => orderItem.product, {
+    cascade: true
+  })
   orderItem: Relation<OrderItem>;
 
   @CreateDateColumn({})

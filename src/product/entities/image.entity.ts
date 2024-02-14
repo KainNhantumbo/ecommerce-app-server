@@ -15,11 +15,7 @@ export class Image extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Product, (product) => product.images, {
-    cascade: true,
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE'
-  })
+  @ManyToOne(() => Product, (product) => product.images)
   product: Relation<Product>;
 
   @Column()

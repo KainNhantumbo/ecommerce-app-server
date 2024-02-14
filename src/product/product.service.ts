@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   UnprocessableEntityException
@@ -7,7 +8,7 @@ import { cloudinaryAPI } from '../config/cloudinary';
 import { Product } from './entities/product.entity';
 import { randomUUID } from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Image } from './entities/image.entity';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -16,6 +17,7 @@ import { Size } from './entities/size.entity';
 import { Category } from './entities/category.entity';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductQueryDto } from './dto/query-product.dto';
+import { ILike, ArrayContains } from 'typeorm';
 
 @Injectable()
 export class ProductService {
@@ -41,12 +43,9 @@ export class ProductService {
 
     if (images.length > 0) {
       if (!this.isProduction) {
-        for (const productImage of productImages) {
+        for (const { url } of images) {
           productImages.push(
-            this.image.create({
-              publicId: randomUUID(),
-              url: productImage
-            })
+            this.image.create({ publicId: randomUUID(), url })
           );
         }
       } else {
@@ -80,12 +79,96 @@ export class ProductService {
   }
 
   async findAll(query: ProductQueryDto): Promise<Product[]> {
-    return await this.product.find({
+    const queryOptions: FindManyOptions<Product> = {
       relations: { images: true, category: true, sizes: true, colors: true }
+    };
+
+    if (query.search) {
+      queryOptions.where = {
+        name: ILike(`%${String(query.search)}%`),
+        specs: ILike(`%${String(query.search)}%`),
+        description: ILike(`%${String(query.search)}%`)
+      };
+    }
+
+    if (query.isArchived !== null || query.isArchived !== undefined) {
+      queryOptions.where = {
+        ...queryOptions.where,
+        isArchived: Boolean(query.isArchived)
+      };
+    }
+
+    if (query.isFeatured !== null || query.isFeatured !== undefined) {
+      queryOptions.where = {
+        ...queryOptions.where,
+        isArchived: Boolean(query.isFeatured)
+      };
+    }
+
+    if (query.category) {
+      queryOptions.where = {
+        ...queryOptions.where,
+        category: { value: ILike(`%${String(query.category)}%`) }
+      };
+    }
+
+    if (query.size) {
+      queryOptions.where = {
+        ...queryOptions.where,
+        sizes: { value: ArrayContains(ILike(`%${String(query.size)}%`)) }
+      };
+    }
+
+    if (query.limit && query.offset) {
+      queryOptions.skip = +query.offset;
+      queryOptions.take = +query.limit;
+    }
+
+    if (query.sort) {
+      const orderOptions = ['ASC', 'DESC', 'asc', 'desc'];
+      const propertyOptions = ['name', 'price', 'createdAt', 'updatedAt'];
+      const [property, order] = String(query.sort).split(',');
+
+      if (!property || !order) {
+        throw new BadRequestException(
+          'Sort format error, please check and try again.'
+        );
+      }
+
+      if (!orderOptions.includes(order)) {
+        throw new BadRequestException(
+          'Unrecognized sort order type, please check and try again.'
+        );
+      }
+
+      if (!propertyOptions.includes(property)) {
+        throw new BadRequestException(
+          'Unrecognized sort order type, please check and try again.'
+        );
+      }
+
+      queryOptions.order[property] = order;
+    }
+
+    if (query.fields) {
+      const fields = String(query.fields).split(',');
+      if (fields.length < 1)
+        throw new BadRequestException('Fields query format error.');
+
+      const selectOptions = fields
+        .map((field) => ({ [field]: true }))
+        .reduce((value, curr) => ({ ...value, ...curr }), {});
+
+      queryOptions.select = { ...queryOptions.select, ...selectOptions };
+    }
+
+    return await this.product.find({
+      ...queryOptions
     });
   }
 
   async findOne(id: number): Promise<Product> {
+    if (!id) throw new BadRequestException('Invalid product id.');
     const product = await this.product.findOne({
       where: { id },
       relations: { images: true, category: true, sizes: true, colors: true }
@@ -101,9 +184,9 @@ export class ProductService {
 
   async update(id: number, updateProductDto: UpdateProductDto) {
     const { colors, category, sizes, ...data } = updateProductDto;
-    let productCategory: { name: string };
-    let productColor: Array<{ name: string; value: string }>;
-    let productSizes: Array<{ name: string; value: string }>;
+    let productCategory: { label: string };
+    let productColor: Array<{ label: string; value: string }>;
+    let productSizes: Array<{ label: string; value: string }>;
 
     const foundProduct = await this.product.findOne({ where: { id } });
 
@@ -118,7 +201,7 @@ export class ProductService {
     }
 
     if (Array.isArray(sizes)) {
-      sizes.map((size) => this.size.create({ ...size }));
+      productSizes = sizes.map((size) => this.size.create({ ...size }));
     }
 
     const result = await this.product.update(id, {
