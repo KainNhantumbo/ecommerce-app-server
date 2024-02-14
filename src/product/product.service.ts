@@ -49,8 +49,8 @@ export class ProductService {
           );
         }
       } else {
-        for (const productImage of productImages) {
-          const result = await cloudinaryAPI.uploader.upload(productImage, {
+        for (const { url } of images) {
+          const result = await cloudinaryAPI.uploader.upload(url, {
             folder: '/ecommerce-app-nestjs/products'
           });
           productImages.push(
@@ -63,9 +63,18 @@ export class ProductService {
       }
     }
 
-    const productColor = colors.map((color) => this.color.create({ ...color }));
-    const productCategory = this.category.create({ ...category });
-    const productSizes = sizes.map((size) => this.size.create({ ...size }));
+    const productColor = colors.map((color) =>
+      this.color.create({ label: color.label, value: color.value })
+    );
+
+    const productSizes = sizes.map((size) =>
+      this.size.create({ label: size.label, value: size.value })
+    );
+
+    const productCategory = this.category.create({
+      label: category.label,
+      value: category.value
+    });
 
     return await this.product
       .create({
@@ -183,31 +192,102 @@ export class ProductService {
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
-    const { colors, category, sizes, ...data } = updateProductDto;
+    const {
+      colors,
+      category,
+      sizes,
+      images: incomingImages,
+      ...data
+    } = updateProductDto;
     let productCategory: { label: string };
     let productColor: Array<{ label: string; value: string }>;
     let productSizes: Array<{ label: string; value: string }>;
+    const productImages = [];
 
     const foundProduct = await this.product.findOne({ where: { id } });
 
     if (!foundProduct) throw new NotFoundException('Product not found.');
 
     if (category) {
-      productCategory = this.category.create({ ...category });
+      productCategory = this.category.create({
+        label: category.label,
+        value: category.value
+      });
     }
 
     if (Array.isArray(colors)) {
-      productColor = colors.map((color) => this.color.create({ ...color }));
+      productColor = colors.map((color) =>
+        this.color.create({ label: color.label, value: color.value })
+      );
     }
 
     if (Array.isArray(sizes)) {
-      productSizes = sizes.map((size) => this.size.create({ ...size }));
+      productSizes = sizes.map((size) =>
+        this.size.create({ label: size.label, value: size.value })
+      );
+    }
+
+    if (Array.isArray(incomingImages) && incomingImages.length > 0) {
+      if (!this.isProduction) {
+        for (const incomingImage of incomingImages) {
+          for (const image of foundProduct.images) {
+            if (incomingImage.id === image.id) {
+              productImages.push(
+                this.image.update(image.id, {
+                  url: incomingImage.url
+                })
+              );
+            } else {
+              productImages.push(
+                this.image.create({
+                  publicId: randomUUID(),
+                  url: incomingImage.url
+                })
+              );
+            }
+          }
+        }
+      } else {
+        for (const incomingImage of incomingImages) {
+          for (const image of foundProduct.images) {
+            if (incomingImage.id === image.id) {
+              const result = await cloudinaryAPI.uploader.upload(
+                incomingImage.url,
+                {
+                  folder: '/ecommerce-app-nestjs/products',
+                  public_id: image.publicId
+                }
+              );
+              productImages.push(
+                this.image.update(image.id, {
+                  url: result.url,
+                  publicId: result.public_id
+                })
+              );
+            } else {
+              const result = await cloudinaryAPI.uploader.upload(
+                incomingImage.url,
+                {
+                  folder: '/ecommerce-app-nestjs/products'
+                }
+              );
+              productImages.push(
+                this.image.create({
+                  publicId: result.public_id,
+                  url: result.secure_url
+                })
+              );
+            }
+          }
+        }
+      }
     }
 
     const result = await this.product.update(id, {
       colors: productColor,
       sizes: productSizes,
       category: productCategory,
+      images: productImages.length > 0 ? productImages : foundProduct.images,
       ...data
     });
 

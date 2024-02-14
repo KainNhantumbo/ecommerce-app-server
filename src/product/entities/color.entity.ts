@@ -1,13 +1,12 @@
 import {
   BaseEntity,
-  Entity,
-  CreateDateColumn,
-  UpdateDateColumn,
-  PrimaryGeneratedColumn,
   Column,
+  CreateDateColumn,
+  Entity,
   ManyToOne,
-  JoinColumn,
-  Relation
+  PrimaryGeneratedColumn,
+  Relation,
+  UpdateDateColumn
 } from 'typeorm';
 import { Product } from './product.entity';
 

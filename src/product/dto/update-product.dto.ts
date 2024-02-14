@@ -33,6 +33,9 @@ export class UpdateProductDto {
   @IsOptional()
   colors?: GenericDataDto[];
 
+  @IsArray()
+  images: { id: string | number; url: string }[];
+
   @IsArray({ each: true })
   @IsOptional()
   sizes?: GenericDataDto[];
