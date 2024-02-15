@@ -16,7 +16,7 @@ import { cloudinaryAPI } from '../config/cloudinary';
 @Injectable()
 export class BillboardService {
   private isProduction: boolean;
-
+  private cloudFolder: string;
   constructor(
     private config: ConfigService,
     @InjectRepository(Image) private image: Repository<Image>,
@@ -26,6 +26,8 @@ export class BillboardService {
       this.config.getOrThrow<string>('NODE_ENV') === 'development'
         ? false
         : true;
+
+    this.cloudFolder = '/ecommerce-app-nestjs/billboards';
   }
 
   async create(createBillboardDto: CreateBillboardDto): Promise<Billboard> {
@@ -49,7 +51,7 @@ export class BillboardService {
     const result = await cloudinaryAPI.uploader.upload(
       createBillboardDto.image,
       {
-        folder: '/ecommerce-app-nestjs/billboards'
+        folder: this.cloudFolder
       }
     );
 
@@ -84,46 +86,35 @@ export class BillboardService {
     return image;
   }
 
-  async update(
-    id: number,
-    updateBillboardDto: UpdateBillboardDto
-  ): Promise<Billboard> {
+  async update(id: number, updateBillboardDto: UpdateBillboardDto) {
     const foundBillboard = await this.findOne(id);
 
     if (updateBillboardDto.image) {
       if (!this.isProduction) {
-        const image = this.image.create({
-          publicId: randomUUID(),
-          url: updateBillboardDto.image
+        return await this.billboard.update(foundBillboard.id, {
+          label: updateBillboardDto?.label,
+          image: this.image.update(foundBillboard.image.id, {
+            publicId: foundBillboard.image.publicId,
+            url: updateBillboardDto.image
+          }) as unknown
         });
-
-        return await this.billboard
-          .create({
-            label: updateBillboardDto?.label,
-            image
-          })
-          .save();
       }
 
       const result = await cloudinaryAPI.uploader.upload(
         updateBillboardDto.image,
         {
-          public_id: foundBillboard.image.publicId,
-          invalidate: true
+          folder: this.cloudFolder,
+          public_id: foundBillboard.image.publicId
         }
       );
 
-      const image = this.image.create({
-        publicId: result.public_id,
-        url: result.secure_url
+      return await this.billboard.update(foundBillboard.id, {
+        label: updateBillboardDto.label,
+        image: this.image.update(foundBillboard.image.id, {
+          publicId: result.public_id,
+          url: result.secure_url
+        }) as unknown
       });
-
-      return await this.billboard
-        .create({
-          label: updateBillboardDto.label,
-          image
-        })
-        .save();
     }
 
     return await this.billboard

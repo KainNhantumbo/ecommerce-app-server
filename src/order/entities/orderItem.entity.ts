@@ -26,11 +26,7 @@ export class OrderItem extends BaseEntity {
   @JoinColumn()
   order: Relation<Order>;
 
-  @OneToOne(() => Product, (product) => product.orderItem, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-    cascade: true
-  })
+  @OneToOne(() => Product, (product) => product.orderItem)
   @JoinColumn()
   product: Relation<Product>;
 
