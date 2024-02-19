@@ -2,26 +2,13 @@ import {
   IsArray,
   IsBoolean,
   IsNotEmpty,
+  IsNotEmptyObject,
   IsNumber,
   IsOptional,
   IsString,
   MaxLength,
   MinLength
 } from 'class-validator';
-
-export class GenericDataDto {
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(2)
-  @MaxLength(16)
-  label: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(2)
-  @MaxLength(8)
-  value: string;
-}
 
 export class CreateProductDto {
   @IsString()
@@ -51,14 +38,19 @@ export class CreateProductDto {
   @IsOptional()
   isArchived: boolean;
 
-  @IsArray({ each: true })
-  colors: GenericDataDto[];
+  @IsArray()
+  @IsOptional()
+  colors: { label: string; value: string }[];
 
   @IsArray()
+  @IsOptional()
   images: { id: string | number; url: string }[];
 
-  @IsArray({ each: true })
-  sizes: GenericDataDto[];
+  @IsArray()
+  @IsOptional()
+  sizes: { label: string; value: string }[];
 
-  category: GenericDataDto;
+  @IsNotEmptyObject()
+  @IsOptional()
+  category: { label: string; value: string };
 }

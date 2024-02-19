@@ -4,20 +4,25 @@ import {
   NotFoundException,
   UnprocessableEntityException
 } from '@nestjs/common';
-import { cloudinaryAPI } from '../config/cloudinary';
-import { Product } from './entities/product.entity';
-import { randomUUID } from 'crypto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import { Image } from './entities/image.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { randomUUID } from 'crypto';
+import {
+  ArrayContains,
+  FindManyOptions,
+  ILike,
+  Repository,
+  UpdateResult
+} from 'typeorm';
+import { cloudinaryAPI } from '../config/cloudinary';
 import { CreateProductDto } from './dto/create-product.dto';
-import { Color } from './entities/color.entity';
-import { Size } from './entities/size.entity';
-import { Category } from './entities/category.entity';
-import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductQueryDto } from './dto/query-product.dto';
-import { ILike, ArrayContains } from 'typeorm';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { Category } from './entities/category.entity';
+import { Color } from './entities/color.entity';
+import { Image } from './entities/image.entity';
+import { Product } from './entities/product.entity';
+import { Size } from './entities/size.entity';
 
 @Injectable()
 export class ProductService {
@@ -199,17 +204,20 @@ export class ProductService {
       images: incomingImages,
       ...data
     } = updateProductDto;
-    let productCategory: { label: string };
-    let productColor: Array<{ label: string; value: string }>;
-    let productSizes: Array<{ label: string; value: string }>;
+    let productCategory: unknown;
+    let productColor: unknown[] = [];
+    let productSizes: unknown[] = [];
     const productImages = [];
 
-    const foundProduct = await this.product.findOne({ where: { id } });
+    const foundProduct = await this.product.findOne({
+      where: { id },
+      relations: { images: true, sizes: true, colors: true, category: true }
+    });
 
     if (!foundProduct) throw new NotFoundException('Product not found.');
 
     if (category) {
-      productCategory = this.category.create({
+      productCategory = this.category.update(foundProduct.category.id, {
         label: category.label,
         value: category.value
       });
@@ -217,13 +225,13 @@ export class ProductService {
 
     if (Array.isArray(colors)) {
       productColor = colors.map((color) =>
-        this.color.create({ label: color.label, value: color.value })
+        this.color.update(color.id, { label: color.label, value: color.value })
       );
     }
 
     if (Array.isArray(sizes)) {
       productSizes = sizes.map((size) =>
-        this.size.create({ label: size.label, value: size.value })
+        this.size.update(size.id, { label: size.label, value: size.value })
       );
     }
 
@@ -284,8 +292,8 @@ export class ProductService {
     }
 
     const result = await this.product.update(id, {
-      colors: productColor,
       sizes: productSizes,
+      colors: productColor,
       category: productCategory,
       images: productImages.length > 0 ? productImages : foundProduct.images,
       ...data

@@ -16,7 +16,7 @@ export class Color extends BaseEntity {
   id: number;
 
   @ManyToOne(() => Product, (product) => product.colors)
-  product: Relation<Product[]>;
+  product: Relation<Product>;
 
   @Column()
   label: string;

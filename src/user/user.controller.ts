@@ -3,14 +3,13 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Patch,
-  Req,
   UseGuards
 } from '@nestjs/common';
-import { UserService } from './user.service';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { DecodedPayload } from 'src/types';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UserService } from './user.service';
 
 @Controller('users')
 @UseGuards(AuthGuard('jwt'))
@@ -22,21 +21,18 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @Get('/user')
-  findOneById(@Req() req: Request) {
-    const { id } = req['user'] as DecodedPayload;
-    return this.userService.findOneById(id);
+  @Get('/:id')
+  findOneById(@Param('id') id: string) {
+    return this.userService.findOneById(+id);
   }
 
-  @Patch('/')
-  updateOne(@Req() req: Request, @Body() updateUserDto: UpdateUserDto) {
-    const { id } = req['user'] as DecodedPayload;
-    return this.userService.updateOne(id, updateUserDto);
+  @Patch('/:id')
+  updateOne(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.userService.updateOne(+id, updateUserDto);
   }
 
-  @Delete('/')
-  deleteOne(@Req() req: Request) {
-    const { id } = req['user'] as DecodedPayload;
-    return this.userService.deleteOne(id);
+  @Delete('/:id')
+  deleteOne(@Param('id') id: string) {
+    return this.userService.deleteOne(+id);
   }
 }

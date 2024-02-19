@@ -1,14 +1,11 @@
 import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
   BaseEntity,
-  OneToOne,
-  Relation
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
 } from 'typeorm';
-import { Product } from './product.entity';
 
 @Entity()
 export class Category extends BaseEntity {

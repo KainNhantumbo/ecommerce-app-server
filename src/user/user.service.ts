@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
   UnprocessableEntityException
@@ -7,6 +8,8 @@ import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { encryptPassword } from '../utils/encrypt-utils';
+import { isStrongPassword } from 'class-validator';
 
 @Injectable()
 export class UserService {
@@ -35,8 +38,31 @@ export class UserService {
     return user;
   }
 
-  async updateOne(id: number, updateUserDto: UpdateUserDto): Promise<void> {
-    const result = await this.user.update({ id }, { ...updateUserDto });
+  async updateOne(
+    id: number,
+    { password, ...data }: UpdateUserDto
+  ): Promise<void> {
+    let hash = undefined;
+
+    if (password) {
+      const IS_STRONG_PASSWORD = isStrongPassword(password, {
+        minLength: 8,
+        minLowercase: 2,
+        minNumbers: 0,
+        minSymbols: 1,
+        minUppercase: 0
+      });
+
+      if (!IS_STRONG_PASSWORD) {
+        throw new BadRequestException(
+          'Password must have at least 8 characters, 1 symbol and 2 lowercase letters.'
+        );
+      }
+
+      hash = await encryptPassword(password);
+    }
+    
+    const result = await this.user.update({ id }, { ...data, password: hash });
 
     if (result.affected < 1)
       throw new UnprocessableEntityException(

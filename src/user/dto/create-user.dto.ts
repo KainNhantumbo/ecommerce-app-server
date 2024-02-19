@@ -33,7 +33,6 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsEnum([...roles])
   employeeId: string;
 
   @IsStrongPassword({

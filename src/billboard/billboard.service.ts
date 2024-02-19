@@ -86,30 +86,27 @@ export class BillboardService {
     return image;
   }
 
-  async update(id: number, updateBillboardDto: UpdateBillboardDto) {
+  async update(id: number, { label, image }: UpdateBillboardDto) {
     const foundBillboard = await this.findOne(id);
 
-    if (updateBillboardDto.image) {
+    if (image) {
       if (!this.isProduction) {
         return await this.billboard.update(foundBillboard.id, {
-          label: updateBillboardDto?.label,
+          label,
           image: this.image.update(foundBillboard.image.id, {
             publicId: foundBillboard.image.publicId,
-            url: updateBillboardDto.image
+            url: image
           }) as unknown
         });
       }
 
-      const result = await cloudinaryAPI.uploader.upload(
-        updateBillboardDto.image,
-        {
-          folder: this.cloudFolder,
-          public_id: foundBillboard.image.publicId
-        }
-      );
+      const result = await cloudinaryAPI.uploader.upload(image, {
+        folder: this.cloudFolder,
+        public_id: foundBillboard.image.publicId
+      });
 
       return await this.billboard.update(foundBillboard.id, {
-        label: updateBillboardDto.label,
+        label,
         image: this.image.update(foundBillboard.image.id, {
           publicId: result.public_id,
           url: result.secure_url
@@ -117,9 +114,9 @@ export class BillboardService {
       });
     }
 
-    return await this.billboard
-      .create({ label: updateBillboardDto?.label })
-      .save();
+    return await this.billboard.update(foundBillboard.id, {
+      label
+    });
   }
 
   async remove(id: number): Promise<void> {

@@ -8,7 +8,6 @@ import {
   MaxLength,
   MinLength
 } from 'class-validator';
-import { GenericDataDto } from './create-product.dto';
 
 export class UpdateProductDto {
   @IsString()
@@ -18,7 +17,18 @@ export class UpdateProductDto {
   @IsOptional()
   name?: string;
 
+  @IsOptional()
+  @IsString()
+  @MaxLength(256)
+  description: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2048)
+  specs: string;
+
   @IsNumber({ allowInfinity: false, allowNaN: false })
+  @IsOptional()
   price?: number;
 
   @IsBoolean()
@@ -29,17 +39,18 @@ export class UpdateProductDto {
   @IsOptional()
   isArchived?: boolean;
 
-  @IsArray({ each: true })
+  @IsArray()
   @IsOptional()
-  colors?: GenericDataDto[];
+  colors?: { id: string; label: string; value: string }[];
 
   @IsArray()
+  @IsOptional()
   images: { id: string | number; url: string }[];
 
-  @IsArray({ each: true })
+  @IsArray()
   @IsOptional()
-  sizes?: GenericDataDto[];
+  sizes?: { id: string; label: string; value: string }[];
 
   @IsOptional()
-  category?: GenericDataDto;
+  category?: { label: string; value: string };
 }

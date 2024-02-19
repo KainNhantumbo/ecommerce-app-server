@@ -7,6 +7,7 @@ import {
   BaseEntity,
   JoinColumn
 } from 'typeorm';
+import { roles } from './dto/create-user.dto';
 
 @Entity()
 export class User extends BaseEntity {
@@ -26,8 +27,11 @@ export class User extends BaseEntity {
   @Column({ nullable: false })
   password: string;
 
-  @Column({ enum: ['USER', 'ADMIN'], default: 'USER' })
+  @Column({ enum: [...roles], default: 'USER' })
   role: string;
+
+  @Column({ default: '' })
+  employeeId: string;
 
   @CreateDateColumn({})
   createdAt: string;

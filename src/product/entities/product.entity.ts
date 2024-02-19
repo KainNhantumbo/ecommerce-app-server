@@ -21,10 +21,10 @@ export class Product extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: false, unique: true })
+  @Column()
   name: string;
 
-  @Column({ nullable: false, length: 256 })
+  @Column()
   description: string;
 
   @Column({ default: '', length: 2048 })
@@ -39,17 +39,15 @@ export class Product extends BaseEntity {
   @Column({ default: false })
   isArchived: boolean;
 
-  @OneToMany(() => Color, (colors) => colors.product, {
-    cascade: true
-  })
-  @JoinColumn()
-  colors: Relation<Color[]>;
-
   @OneToMany(() => Image, (image) => image.product, {
     cascade: true
   })
   @JoinColumn()
   images: Relation<Image[]>;
+
+  @OneToMany(() => Color, (colors) => colors.product, { cascade: true })
+  @JoinColumn()
+  colors: Relation<Color[]>;
 
   @OneToMany(() => Size, (size) => size.products, { cascade: true })
   @JoinColumn()
