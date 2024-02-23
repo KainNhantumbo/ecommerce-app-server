@@ -4,15 +4,16 @@ import {
   NotFoundException,
   UnauthorizedException
 } from '@nestjs/common';
-import { SignInDto } from './dto/sign-in.dto';
-import { comparePasswords, encryptPassword } from '../utils/encrypt-utils';
-import { JwtService } from '@nestjs/jwt';
-import { User } from '../user/user.entity';
-import { CreateUserDto } from '../user/dto/create-user.dto';
-import { QueryFailedError, Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { DecodedPayload } from 'src/types';
-import { InjectRepository } from '@nestjs/typeorm';
+import { QueryFailedError } from 'typeorm';
+import { CreateUserDto } from '../user/dto/create-user.dto';
+import { User } from '../user/user.schema';
+import { comparePasswords, encryptPassword } from '../utils/encrypt-utils';
+import { SignInDto } from './dto/sign-in.dto';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +22,7 @@ export class AuthService {
   constructor(
     private config: ConfigService,
     private jwt: JwtService,
-    @InjectRepository(User) private user: Repository<User>
+    @InjectModel(User.name) private user: Model<User>
   ) {
     this.isProduction =
       this.config.getOrThrow<string>('NODE_ENV') === 'development'
@@ -30,7 +31,7 @@ export class AuthService {
   }
 
   async signIn({ email, password }: SignInDto) {
-    const user = await this.user.findOne({ where: { email } });
+    const user = await this.user.findOne({ email }).lean();
 
     if (!user)
       throw new NotFoundException(
@@ -40,15 +41,21 @@ export class AuthService {
     const match = await comparePasswords(password, user.password);
     if (!match) throw new UnauthorizedException();
 
-    const access_token = await this.signAccessToken(user.id, user.email);
-    const refresh_token = await this.signRefreshToken(user.id, user.email);
+    const access_token = await this.signAccessToken(
+      user._id.toString(),
+      user.email
+    );
+    const refresh_token = await this.signRefreshToken(
+      user._id.toString(),
+      user.email
+    );
 
     return {
       access_token,
       refresh_token,
       isProduction: this.isProduction,
       user: {
-        id: user.id,
+        id: user._id,
         email: user.email,
         name: `${user.firstName} ${user.lastName}`
       }
@@ -59,11 +66,10 @@ export class AuthService {
     try {
       const { password, ...rest } = createUserDto;
       const hash = await encryptPassword(password);
-      const newUser = this.user.create({
+      return await this.user.create({
         ...rest,
         password: hash
       });
-      return await newUser.save();
     } catch (error) {
       if (error instanceof QueryFailedError)
         throw new ForbiddenException('Credentials already taken.');
@@ -79,14 +85,17 @@ export class AuthService {
 
     if (!payload) throw new UnauthorizedException();
 
-    const user = await this.user.findOne({ where: { email: payload.email } });
+    const user = await this.user.findOne({ email: payload.email });
 
-    if (!user) throw new NotFoundException('Resource not found.');
+    if (!user) throw new NotFoundException('Resource not found: unauthorized.');
 
-    const access_token = await this.signAccessToken(user.id, user.email);
+    const access_token = await this.signAccessToken(
+      user._id.toString(),
+      user.email
+    );
 
     return {
-      id: user.id,
+      id: user._id,
       email: user.email,
       token: access_token,
       name: `${user.firstName} ${user.lastName}`
@@ -98,7 +107,7 @@ export class AuthService {
     return { isProduction: this.isProduction };
   }
 
-  signAccessToken(userId: number, email: string): Promise<string> {
+  signAccessToken(userId: string, email: string): Promise<string> {
     const payload = { id: userId, email };
     const ACCESS_TOKEN = this.config.getOrThrow<string>('ACCESS_TOKEN');
     const ACCESS_TOKEN_EXPDATE = this.config.getOrThrow<string>(
@@ -111,7 +120,7 @@ export class AuthService {
     });
   }
 
-  signRefreshToken(userId: number, email: string): Promise<string> {
+  signRefreshToken(userId: string, email: string): Promise<string> {
     const payload = { id: userId, email };
     const REFRESH_TOKEN = this.config.getOrThrow<string>('REFRESH_TOKEN');
     const REFRESH_TOKEN_EXPDATE = this.config.getOrThrow<string>(

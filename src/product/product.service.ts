@@ -4,136 +4,105 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectModel } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
-import { ArrayContains, FindManyOptions, ILike, Repository } from 'typeorm';
+import { FilterQuery, Model, SortOrder } from 'mongoose';
 import { cloudinaryAPI } from '../config/cloudinary';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductQueryDto } from './dto/query-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Category } from './entities/category.entity';
-import { Color } from './entities/color.entity';
-import { Image } from './entities/image.entity';
-import { Product } from './entities/product.entity';
-import { Size } from './entities/size.entity';
+import { Product, ProductDocument } from './product.schema';
 
 @Injectable()
 export class ProductService {
   private isProduction: boolean;
+  private cloudFolder: string;
 
   constructor(
     private config: ConfigService,
-    @InjectRepository(Image) private image: Repository<Image>,
-    @InjectRepository(Color) private color: Repository<Color>,
-    @InjectRepository(Size) private size: Repository<Size>,
-    @InjectRepository(Category) private category: Repository<Category>,
-    @InjectRepository(Product) private product: Repository<Product>
+    @InjectModel(Product.name) private product: Model<Product>
   ) {
     this.isProduction =
       this.config.getOrThrow<string>('NODE_ENV') === 'development'
         ? false
         : true;
+
+    this.cloudFolder = '/we-commerce/products';
   }
 
-  async create(createProductDto: CreateProductDto): Promise<Product> {
-    const { colors, category, images, sizes, ...data } = createProductDto;
+  async create(createProductDto: CreateProductDto) {
+    const { images, ...data } = createProductDto;
     const productImages = [];
 
     if (images.length > 0) {
       if (!this.isProduction) {
         for (const { url } of images) {
-          productImages.push(
-            this.image.create({ publicId: randomUUID(), url })
-          );
+          productImages.push({ publicId: randomUUID(), url });
         }
       } else {
         for (const { url } of images) {
           const result = await cloudinaryAPI.uploader.upload(url, {
-            folder: '/ecommerce-app-nestjs/products'
+            folder: this.cloudFolder
           });
-          productImages.push(
-            this.image.create({
-              publicId: result.public_id,
-              url: result.secure_url
-            })
-          );
+          productImages.push({
+            publicId: result.public_id,
+            url: result.secure_url
+          });
         }
       }
     }
 
-    const productColor = colors.map((color) =>
-      this.color.create({ label: color.label, value: color.value })
-    );
-
-    const productSizes = sizes.map((size) =>
-      this.size.create({ label: size.label, value: size.value })
-    );
-
-    const productCategory = this.category.create({
-      label: category.label,
-      value: category.value
-    });
-
-    return await this.product
-      .create({
-        colors: productColor,
-        sizes: productSizes,
-        images: productImages,
-        category: productCategory,
-        ...data
-      })
-      .save();
+    return await this.product.create({ images: productImages, ...data });
   }
 
   async findAll(query: ProductQueryDto): Promise<Product[]> {
-    const queryOptions: FindManyOptions<Product> = {
-      relations: { images: true, category: true, sizes: true, colors: true }
-    };
+    const queryOptions: FilterQuery<ProductDocument> = {};
 
     if (query.search) {
-      queryOptions.where = {
-        name: ILike(`%${String(query.search)}%`),
-        specs: ILike(`%${String(query.search)}%`),
-        description: ILike(`%${String(query.search)}%`)
-      };
+      queryOptions['$or'] = [
+        {
+          name: { $regex: String(query.search), $option: 'i' },
+          specs: { $regex: String(query.search), $option: 'i' },
+          description: { $regex: String(query.search), $option: 'i' }
+        }
+      ];
     }
 
     if (query.isArchived !== null || query.isArchived !== undefined) {
-      queryOptions.where = {
-        ...queryOptions.where,
-        isArchived: Boolean(Number(query.isArchived))
-      };
+      queryOptions.isArchived = Boolean(Number(query.isArchived));
     }
 
     if (query.isFeatured !== null || query.isFeatured !== undefined) {
-      queryOptions.where = {
-        ...queryOptions.where,
-        isArchived: Boolean(Number(query.isFeatured))
-      };
+      queryOptions.isFeatured = Boolean(Number(query.isFeatured));
     }
 
     if (query.category) {
-      queryOptions.where = {
-        ...queryOptions.where,
-        category: { value: ILike(`%${String(query.category)}%`) }
-      };
+      queryOptions.category = { value: String(query.category) };
     }
 
     if (query.size) {
-      queryOptions.where = {
-        ...queryOptions.where,
-        sizes: { value: ArrayContains(ILike(`%${String(query.size)}%`)) }
+      queryOptions.sizes = {
+        $elemMatch: { value: { $regex: String(query.size), $options: 'i' } }
       };
     }
 
+    let queryResult = this.product.find(queryOptions);
+
     if (query.limit && query.offset) {
-      queryOptions.skip = +query.offset;
-      queryOptions.take = +query.limit;
+      queryResult = queryResult.skip(+query.offset).limit(+query.limit);
+    }
+
+    if (query.fields) {
+      const fields = String(query.fields).split(',');
+      if (fields.length < 1)
+        throw new BadRequestException('Fields query format error.');
+
+      queryResult = queryResult.select(fields.join());
     }
 
     if (query.sort) {
-      const orderOptions = ['ASC', 'DESC', 'asc', 'desc'];
-      const propertyOptions = ['name', 'category', 'price', 'updatedAt'];
+      const orderOptions = ['asc', 'desc'];
+      const propertyOptions = ['name', 'price', 'updatedAt'];
       const [property, order] = String(query.sort).split(',');
 
       if (!property || !order) {
@@ -154,119 +123,45 @@ export class ProductService {
         );
       }
 
-      queryOptions.order[property] = order;
+      queryResult = queryResult.sort([[property, order as SortOrder]]);
     }
 
-    if (query.fields) {
-      const fields = String(query.fields).split(',');
-      if (fields.length < 1)
-        throw new BadRequestException('Fields query format error.');
-
-      const selectOptions = fields
-        .map((field) => ({ [field]: true }))
-        .reduce((value, curr) => ({ ...value, ...curr }), {});
-
-      queryOptions.select = { ...queryOptions.select, ...selectOptions };
-    }
-
-    return await this.product.find({
-      ...queryOptions
-    });
+    return await queryResult.lean();
   }
 
-  async findOne(id: number): Promise<Product> {
-    if (!id) throw new BadRequestException('Invalid product id.');
-    const product = await this.product.findOne({
-      where: { id },
-      relations: { images: true, category: true, sizes: true, colors: true }
-    });
+  async findOne(id: string) {
+    const product = await this.product.findOne({ _id: id }).lean();
 
     if (!product)
       throw new NotFoundException(
         `Product with provided ID ${id}, was not found.`
       );
-
     return product;
   }
 
-  async update(id: number, updateProductDto: UpdateProductDto) {
-    const {
-      colors,
-      category,
-      sizes,
-      images: incomingImages,
-      ...data
-    } = updateProductDto;
-    let productCategory: unknown;
-    let productColor: unknown[] = [];
-    let productSizes: unknown[] = [];
+  async update(id: string, updateProductDto: UpdateProductDto) {
+    const { images: incomingImages, ...data } = updateProductDto;
     const productImages = [];
 
-    const foundProduct = await this.product.findOne({
-      where: { id },
-      relations: { images: true, sizes: true, colors: true, category: true }
-    });
+    const foundProduct = await this.product.findOne({ _id: id });
 
     if (!foundProduct) throw new NotFoundException('Product not found.');
-
-    if (category) {
-      productCategory = this.category.update(foundProduct.category.id, {
-        label: category.label,
-        value: category.value
-      });
-    }
-
-    if (Array.isArray(colors)) {
-      productColor = colors.map((color) => {
-        for (const { id } of foundProduct.colors) {
-          if (+color.id === id) {
-            return this.color.update(color.id, {
-              label: color.label,
-              value: color.value
-            });
-          }
-          return this.color.create({
-            label: color.label,
-            value: color.value
-          });
-        }
-      });
-    }
-
-    if (Array.isArray(sizes)) {
-      productSizes = sizes.map((size) => {
-        for (const { id } of foundProduct.sizes) {
-          if (+size.id === id) {
-            return this.size.update(size.id, {
-              label: size.label,
-              value: size.value
-            });
-          }
-          return this.size.create({
-            label: size.label,
-            value: size.value
-          });
-        }
-      });
-    }
 
     if (Array.isArray(incomingImages) && incomingImages.length > 0) {
       if (!this.isProduction) {
         for (const incomingImage of incomingImages) {
           for (const image of foundProduct.images) {
             if (incomingImage.id === image.id) {
-              productImages.push(
-                this.image.update(image.id, {
-                  url: incomingImage.url
-                })
-              );
+              productImages.push({
+                ...image,
+                url: incomingImage.url
+              });
             } else {
-              productImages.push(
-                this.image.create({
-                  publicId: randomUUID(),
-                  url: incomingImage.url
-                })
-              );
+              productImages.push({
+                id: randomUUID(),
+                publicId: randomUUID(),
+                url: incomingImage.url
+              });
             }
           }
         }
@@ -276,63 +171,54 @@ export class ProductService {
             if (incomingImage.id === image.id) {
               const result = await cloudinaryAPI.uploader.upload(
                 incomingImage.url,
-                {
-                  folder: '/ecommerce-app-nestjs/products',
-                  public_id: image.publicId
-                }
+                { folder: this.cloudFolder, public_id: image.publicId }
               );
-              productImages.push(
-                this.image.update(image.id, {
-                  url: result.url,
-                  publicId: result.public_id
-                })
-              );
+              productImages.push({
+                ...image,
+                url: result.url,
+                publicId: result.public_id
+              });
             } else {
               const result = await cloudinaryAPI.uploader.upload(
                 incomingImage.url,
-                {
-                  folder: '/ecommerce-app-nestjs/products'
-                }
+                { folder: this.cloudFolder }
               );
-              productImages.push(
-                this.image.create({
-                  publicId: result.public_id,
-                  url: result.secure_url
-                })
-              );
+              productImages.push({
+                ...image,
+                publicId: result.public_id,
+                url: result.secure_url
+              });
             }
           }
         }
       }
     }
 
-    await this.product.update(foundProduct.id,{
-      sizes: productSizes,
-      colors: productColor,
-      category: productCategory,
-      images: productImages.length > 0 ? productImages : foundProduct.images,
-      ...data
-    });
+    await this.product.findOneAndUpdate(
+      { _id: foundProduct._id },
+      {
+        images: productImages.length > 0 ? productImages : foundProduct.images,
+        ...data
+      },
+      { new: true, lean: true, runValidators: true }
+    );
   }
 
-  async remove(id: number): Promise<void> {
-    const foundProduct = await this.product.findOne({
-      where: { id },
-      relations: {
-        images: true
-      }
-    });
+  async remove(id: string): Promise<void> {
+    const foundProduct = await this.product
+      .findOneAndDelete({ _id: id })
+      .lean();
 
     if (!foundProduct) throw new NotFoundException('Product not found');
 
-    if (foundProduct.images.length > 0) {
-      for (const productImage of foundProduct.images) {
-        await cloudinaryAPI.uploader.destroy(productImage.publicId, {
-          invalidate: true
-        });
+    if (!this.isProduction) {
+      if (foundProduct.images.length > 0) {
+        for (const productImage of foundProduct.images) {
+          await cloudinaryAPI.uploader.destroy(productImage.publicId, {
+            invalidate: true
+          });
+        }
       }
     }
-
-    await foundProduct.remove();
   }
 }

@@ -4,44 +4,34 @@ import {
   NotFoundException,
   UnprocessableEntityException
 } from '@nestjs/common';
-import { User } from './user.entity';
-import { Repository } from 'typeorm';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { encryptPassword } from '../utils/encrypt-utils';
+import { InjectModel } from '@nestjs/mongoose';
 import { isStrongPassword } from 'class-validator';
+import { Model } from 'mongoose';
+import { encryptPassword } from '../utils/encrypt-utils';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './user.schema';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectRepository(User) private user: Repository<User>) {}
+  constructor(@InjectModel(User.name) private user: Model<User>) {}
 
   async findAll(): Promise<User[]> {
-    return (await this.user.find({ select: { password: false } })).map(
-      (user) => {
-        delete user.password;
-        return user;
-      }
-    );
+    return await this.user.find({}).select('-password').lean();
   }
 
-  async findOneById(id: number): Promise<User | null> {
-    const user: User | null = await this.user.findOne({
-      where: { id }
-    });
+  async findOneById(id: string) {
+    const user: User | null = await this.user
+      .findOne({ _id: id })
+      .select('-password');
 
     if (!user)
       throw new NotFoundException(
         `User with provided ID ${id}, was not found.`
       );
-
-    delete user.password;
     return user;
   }
 
-  async updateOne(
-    id: number,
-    { password, ...data }: UpdateUserDto
-  ): Promise<void> {
+  async updateOne(id: string, { password, ...data }: UpdateUserDto) {
     let hash = undefined;
 
     if (password) {
@@ -61,21 +51,22 @@ export class UserService {
 
       hash = await encryptPassword(password);
     }
-    
-    const result = await this.user.update({ id }, { ...data, password: hash });
 
-    if (result.affected < 1)
+    const result = await this.user.findOneAndUpdate(
+      { _id: id },
+      { ...data, password: hash },
+      { runValidators: true, new: true, lean: true }
+    );
+
+    if (!result)
       throw new UnprocessableEntityException(
         'Failed to update your data. Please, try again later.'
       );
   }
 
-  async deleteOne(id: number): Promise<{ message: string }> {
-    const user = await this.user.findOne({ where: { id } });
-
+  async deleteOne(id: string) {
+    const user = await this.user.findOneAndDelete({ _id: id });
     if (!user) throw new NotFoundException('Account not found.');
-
-    await user.remove();
     return { message: 'Account deleted successfully.' };
   }
 }

@@ -1,7 +1,7 @@
-import { Document } from 'mongoose';
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
+import { HydratedDocument } from 'mongoose';
 
-export interface IBillboard extends Document {
+export interface IBillboard {
   readonly label: string;
   readonly image: {
     publicId: string;
@@ -9,8 +9,10 @@ export interface IBillboard extends Document {
   };
 }
 
+export interface BillboardDocument extends HydratedDocument<Billboard> {}
+
 @Schema({ timestamps: true })
-export class Billboard {
+export class Billboard implements IBillboard {
   @Prop({ type: String })
   label: string;
 
@@ -20,7 +22,7 @@ export class Billboard {
       url: { type: String, required: true }
     })
   )
-  image: Record<string, string>;
+  image: { publicId: string; url: string };
 }
 
 export const BillboardSchema = SchemaFactory.createForClass(Billboard);
