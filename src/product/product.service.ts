@@ -7,13 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
-import {
-  ArrayContains,
-  FindManyOptions,
-  ILike,
-  Repository,
-  UpdateResult
-} from 'typeorm';
+import { ArrayContains, FindManyOptions, ILike, Repository } from 'typeorm';
 import { cloudinaryAPI } from '../config/cloudinary';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductQueryDto } from './dto/query-product.dto';
@@ -108,14 +102,14 @@ export class ProductService {
     if (query.isArchived !== null || query.isArchived !== undefined) {
       queryOptions.where = {
         ...queryOptions.where,
-        isArchived: Boolean(query.isArchived)
+        isArchived: Boolean(Number(query.isArchived))
       };
     }
 
     if (query.isFeatured !== null || query.isFeatured !== undefined) {
       queryOptions.where = {
         ...queryOptions.where,
-        isArchived: Boolean(query.isFeatured)
+        isArchived: Boolean(Number(query.isFeatured))
       };
     }
 
@@ -140,7 +134,7 @@ export class ProductService {
 
     if (query.sort) {
       const orderOptions = ['ASC', 'DESC', 'asc', 'desc'];
-      const propertyOptions = ['name', 'price', 'createdAt', 'updatedAt'];
+      const propertyOptions = ['name', 'category', 'price', 'updatedAt'];
       const [property, order] = String(query.sort).split(',');
 
       if (!property || !order) {

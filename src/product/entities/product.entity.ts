@@ -40,25 +40,41 @@ export class Product extends BaseEntity {
   isArchived: boolean;
 
   @OneToMany(() => Image, (image) => image.product, {
-    cascade: true
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   })
   @JoinColumn()
   images: Relation<Image[]>;
 
-  @OneToMany(() => Color, (colors) => colors.product, { cascade: true })
+  @OneToMany(() => Color, (colors) => colors.product, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+  })
   @JoinColumn()
   colors: Relation<Color[]>;
 
-  @OneToMany(() => Size, (size) => size.products, { cascade: true })
+  @OneToMany(() => Size, (size) => size.product, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+  })
   @JoinColumn()
   sizes: Relation<Size[]>;
 
-  @OneToOne(() => Category, (category) => category, { cascade: true })
+  @OneToOne(() => Category, (category) => category, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+  })
   @JoinColumn()
   category: Relation<Category>;
 
   @OneToOne(() => OrderItem, (orderItem) => orderItem.product, {
-    cascade: true
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   })
   orderItem: Relation<OrderItem>;
 

@@ -22,6 +22,7 @@ import { OrderItem } from './order/entities/orderItem.entity';
 import { User } from './user/user.entity';
 import { BillboardModule } from './billboard/billboard.module';
 import { Billboard } from './billboard/entities/billboard.entity';
+import { DrizzleModule } from './drizzle/drizzle.module';
 
 @Module({
   imports: [
@@ -66,7 +67,8 @@ import { Billboard } from './billboard/entities/billboard.entity';
     HealthModule,
     ProductModule,
     OrderModule,
-    BillboardModule
+    BillboardModule,
+    DrizzleModule
   ],
   controllers: [],
   providers: [{ provide: APP_INTERCEPTOR, useClass: CacheInterceptor }]

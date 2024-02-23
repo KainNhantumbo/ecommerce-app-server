@@ -6,8 +6,13 @@ export class CreateOrderDto {
   @MinLength(5)
   costumerName: string;
 
-  @IsArray({ each: true, message: 'Please provide order items' })
-  items: { productId: number; quantity: number }[];
+  @IsArray()
+  items: {
+    productId: number;
+    quantity: number;
+    sizes: string[];
+    colors: string[];
+  }[];
 
   @IsString({ message: 'Please provide a valid phone number' })
   @IsNotEmpty({ message: 'Please provide your phone number' })

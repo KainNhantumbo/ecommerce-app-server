@@ -22,7 +22,7 @@ export class Size extends BaseEntity {
   value: string;
 
   @ManyToOne(() => Product, (product) => product.sizes)
-  products: Relation<Product[]>;
+  product: Relation<Product>;
 
   @CreateDateColumn()
   createdAt: string;
