@@ -1,8 +1,7 @@
 import {
   BadRequestException,
   Injectable,
-  NotFoundException,
-  UnprocessableEntityException
+  NotFoundException
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -218,15 +217,37 @@ export class ProductService {
     }
 
     if (Array.isArray(colors)) {
-      productColor = colors.map((color) =>
-        this.color.update(color.id, { label: color.label, value: color.value })
-      );
+      productColor = colors.map((color) => {
+        for (const { id } of foundProduct.colors) {
+          if (+color.id === id) {
+            return this.color.update(color.id, {
+              label: color.label,
+              value: color.value
+            });
+          }
+          return this.color.create({
+            label: color.label,
+            value: color.value
+          });
+        }
+      });
     }
 
     if (Array.isArray(sizes)) {
-      productSizes = sizes.map((size) =>
-        this.size.update(size.id, { label: size.label, value: size.value })
-      );
+      productSizes = sizes.map((size) => {
+        for (const { id } of foundProduct.sizes) {
+          if (+size.id === id) {
+            return this.size.update(size.id, {
+              label: size.label,
+              value: size.value
+            });
+          }
+          return this.size.create({
+            label: size.label,
+            value: size.value
+          });
+        }
+      });
     }
 
     if (Array.isArray(incomingImages) && incomingImages.length > 0) {
@@ -285,16 +306,13 @@ export class ProductService {
       }
     }
 
-    const result = await this.product.update(id, {
+    await this.product.update(foundProduct.id,{
       sizes: productSizes,
       colors: productColor,
       category: productCategory,
       images: productImages.length > 0 ? productImages : foundProduct.images,
       ...data
     });
-
-    if (result.affected < 1)
-      throw new UnprocessableEntityException('Failed to update product.');
   }
 
   async remove(id: number): Promise<void> {

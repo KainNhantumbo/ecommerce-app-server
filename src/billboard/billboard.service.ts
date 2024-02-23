@@ -1,17 +1,12 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnprocessableEntityException
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { InjectModel } from '@nestjs/mongoose';
+import { randomUUID } from 'crypto';
+import { Model } from 'mongoose';
+import { cloudinaryAPI } from '../config/cloudinary';
+import { Billboard } from './billboard.schema';
 import { CreateBillboardDto } from './dto/create-billboard.dto';
 import { UpdateBillboardDto } from './dto/update-billboard.dto';
-import { Image } from '../product/entities/image.entity';
-import { Billboard } from './entities/billboard.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { ConfigService } from '@nestjs/config';
-import { randomUUID } from 'crypto';
-import { cloudinaryAPI } from '../config/cloudinary';
 
 @Injectable()
 export class BillboardService {
@@ -19,122 +14,95 @@ export class BillboardService {
   private cloudFolder: string;
   constructor(
     private config: ConfigService,
-    @InjectRepository(Image) private image: Repository<Image>,
-    @InjectRepository(Billboard) private billboard: Repository<Billboard>
+    @InjectModel(Billboard.name) private billboard: Model<Billboard>
   ) {
     this.isProduction =
       this.config.getOrThrow<string>('NODE_ENV') === 'development'
         ? false
         : true;
 
-    this.cloudFolder = '/ecommerce-app-nestjs/billboards';
+    this.cloudFolder = '/we-commerce/billboards';
   }
 
-  async create(createBillboardDto: CreateBillboardDto): Promise<Billboard> {
+  async create({ label, image }: CreateBillboardDto) {
     if (!this.isProduction) {
-      const image = this.image.create({
-        publicId: randomUUID(),
-        url: createBillboardDto.image
+      return await this.billboard.create({
+        label,
+        image: {
+          url: image,
+          publicId: randomUUID()
+        }
       });
-
-      await this.billboard
-        .create({
-          label: createBillboardDto.label,
-          image
-        })
-        .save();
-
-      image.save();
-      return;
     }
 
-    const result = await cloudinaryAPI.uploader.upload(
-      createBillboardDto.image,
-      {
-        folder: this.cloudFolder
+    const result = await cloudinaryAPI.uploader.upload(image, {
+      folder: this.cloudFolder
+    });
+
+    return await this.billboard.create({
+      label,
+      image: {
+        publicId: result.public_id,
+        url: result.secure_url
       }
-    );
-
-    const image = this.image.create({
-      publicId: result.public_id,
-      url: result.secure_url
     });
-
-    return await this.billboard
-      .create({
-        label: createBillboardDto.label,
-        image
-      })
-      .save();
   }
 
-  async findAll(): Promise<Billboard[]> {
-    return await this.billboard.find({ relations: { image: true } });
+  async findAll() {
+    return await this.billboard.find({});
   }
 
-  async findOne(id: number): Promise<Billboard> {
-    const image = await this.billboard.findOne({
-      where: { id },
-      relations: { image: true }
+  async findOne(id: string) {
+    const foundBillboard = await this.billboard.findOne({
+      _id: id
     });
 
-    if (!image)
+    if (!foundBillboard)
       throw new NotFoundException(
-        `Image with provided ID ${id}, was not found.`
+        `Billboard with provided ID ${id}, was not found.`
       );
 
-    return image;
+    return foundBillboard;
   }
 
-  async update(id: number, { label, image }: UpdateBillboardDto) {
-    const foundBillboard = await this.findOne(id);
+  async update(id: string, data: UpdateBillboardDto) {
+    const foundBillboard = await this.billboard.findOne({ _id: id });
 
-    if (image) {
+    if (data.image) {
       if (!this.isProduction) {
-        return await this.billboard.update(foundBillboard.id, {
-          label,
-          image: this.image.update(foundBillboard.image.id, {
-            publicId: foundBillboard.image.publicId,
-            url: image
-          }) as unknown
-        });
+        data.image = {
+          publicId: foundBillboard.image.publicId,
+          url: data.image
+        } as unknown as never;
       }
 
-      const result = await cloudinaryAPI.uploader.upload(image, {
+      const result = await cloudinaryAPI.uploader.upload(data.image, {
         folder: this.cloudFolder,
         public_id: foundBillboard.image.publicId
       });
 
-      return await this.billboard.update(foundBillboard.id, {
-        label,
-        image: this.image.update(foundBillboard.image.id, {
-          publicId: result.public_id,
-          url: result.secure_url
-        }) as unknown
-      });
+      data.image = {
+        publicId: result.public_id,
+        url: result.secure_url
+      } as unknown as never;
     }
 
-    return await this.billboard.update(foundBillboard.id, {
-      label
-    });
+    return await this.billboard.findOneAndUpdate(
+      { _id: foundBillboard._id },
+      { label: data.label, image: data.image },
+      { runValidators: true, new: true, lean: true }
+    );
   }
 
-  async remove(id: number): Promise<void> {
-    const foundBillboard = await this.billboard.findOne({
-      where: { id },
-      relations: { image: true }
-    });
+  async remove(id: string): Promise<void> {
+    const foundBillboard = await this.billboard.findOneAndDelete({ _id: id });
 
     if (!foundBillboard) throw new NotFoundException('Billboard not found');
+
     if (this.isProduction) {
       await cloudinaryAPI.uploader.destroy(foundBillboard.image.publicId, {
         invalidate: true
       });
     }
-
-    const result = await this.billboard.delete(id);
-
-    if (result.affected < 1)
-      throw new UnprocessableEntityException('Failed to delete billboard.');
   }
 }

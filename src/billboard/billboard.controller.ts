@@ -30,7 +30,7 @@ export class BillboardController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.billboardService.findOne(+id);
+    return this.billboardService.findOne(id);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -39,12 +39,12 @@ export class BillboardController {
     @Param('id') id: string,
     @Body() updateBillboardDto: UpdateBillboardDto
   ) {
-    return this.billboardService.update(+id, updateBillboardDto);
+    return this.billboardService.update(id, updateBillboardDto);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.billboardService.remove(+id);
+    return this.billboardService.remove(id);
   }
 }

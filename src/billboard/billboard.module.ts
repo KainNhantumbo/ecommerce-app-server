@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
-import { BillboardService } from './billboard.service';
+import { MongooseModule } from '@nestjs/mongoose';
 import { BillboardController } from './billboard.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Billboard } from './entities/billboard.entity';
-import { Image } from '../product/entities/image.entity';
+import { Billboard, BillboardSchema } from './billboard.schema';
+import { BillboardService } from './billboard.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Billboard, Image])],
+  imports: [
+    MongooseModule.forFeature([{ name: Billboard.name, schema: BillboardSchema }])
+  ],
   controllers: [BillboardController],
   providers: [BillboardService]
 })

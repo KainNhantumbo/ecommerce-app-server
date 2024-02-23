@@ -1,14 +1,11 @@
 import {
   BaseEntity,
-  Entity,
-  CreateDateColumn,
-  UpdateDateColumn,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  Relation
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
 } from 'typeorm';
-import { Product } from './product.entity';
 
 @Entity()
 export class Size extends BaseEntity {
@@ -20,9 +17,6 @@ export class Size extends BaseEntity {
 
   @Column()
   value: string;
-
-  @ManyToOne(() => Product, (product) => product.sizes)
-  product: Relation<Product>;
 
   @CreateDateColumn()
   createdAt: string;
