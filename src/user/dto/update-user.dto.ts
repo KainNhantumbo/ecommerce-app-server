@@ -1,12 +1,10 @@
 import {
-  IsString,
-  IsOptional,
-  IsStrongPassword,
-  IsNotEmpty,
-  MaxLength,
-  MinLength,
   IsEnum,
-  IsEmpty
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength
 } from 'class-validator';
 import { roles } from './create-user.dto';
 

@@ -2,9 +2,7 @@ import { DocumentBuilder } from '@nestjs/swagger';
 
 export const swaggerDocumentConfig = new DocumentBuilder()
   .setTitle('Ecommerce API')
-  .setDescription(
-    "A full featured API that let's you manage your ecommerce!!"
-  )
+  .setDescription("A full featured API that let's you manage your ecommerce!!")
   .setVersion('1.0.0')
   .addTag('store')
   .setContact(

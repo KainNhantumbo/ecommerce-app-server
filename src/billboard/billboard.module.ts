@@ -6,7 +6,9 @@ import { BillboardService } from './billboard.service';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Billboard.name, schema: BillboardSchema }])
+    MongooseModule.forFeature([
+      { name: Billboard.name, schema: BillboardSchema }
+    ])
   ],
   controllers: [BillboardController],
   providers: [BillboardService]
