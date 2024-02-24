@@ -8,7 +8,7 @@ export class CreateOrderDto {
 
   @IsArray()
   items: {
-    productId: number;
+    productId: string;
     quantity: number;
     sizes: string[];
     colors: string[];

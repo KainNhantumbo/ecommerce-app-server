@@ -1,56 +1,53 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Order } from './entities/order.entity';
-import { Repository } from 'typeorm';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Product } from '../product/product.schema';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { OrderItem } from './entities/orderItem.entity';
-import { Product } from '../product/entities/product.entity';
+import { Order } from './order.schema';
 
 @Injectable()
 export class OrderService {
   constructor(
-    @InjectRepository(Order) private order: Repository<Order>,
-    @InjectRepository(OrderItem) private orderItem: Repository<OrderItem>,
-    @InjectRepository(Product) private product: Repository<Product>
+    @InjectModel(Order.name) private order: Model<Order>,
+    @InjectModel(Product.name) private product: Model<Product>
   ) {}
 
   async create(createOrderDto: CreateOrderDto) {
     const { items, ...data } = createOrderDto;
 
-    const cart = await Promise.all(
-      items.map(async (item) => {
-        const product = await this.product.findOne({
-          where: { id: item.productId }
-        });
-
-        return {
-          product,
-          quantity: item.quantity
-        };
-      })
-    );
-
-    return this.order
-      .create({
-        ...data,
-        orderItems: cart.map((item) =>
-          this.orderItem.create({
-            product: item.product,
+    const cart = (
+      await this.product
+        .find({
+          _id: { $in: items.map((item) => item.productId) }
+        })
+        .select('name price')
+    ).map((product) => {
+      for (const item of items) {
+        if (item.productId === String(product._id)) {
+          return {
+            name: product.name,
+            productId: product._id,
+            price: product.price,
+            sizes: item.sizes,
+            colors: item.colors,
             quantity: item.quantity
-          })
-        )
-      })
-      .save();
+          };
+        }
+      }
+    });
+
+    return this.order.create({
+      ...data,
+      items: cart
+    });
   }
 
   async findAll() {
-    return this.order.find({ relations: { orderItems: true } });
+    return this.order.find().lean();
   }
 
-  async remove(id: number) {
-    const foundOrder = await this.order.findOne({ where: { id } });
-
+  async remove(id: string) {
+    const foundOrder = await this.order.findOneAndDelete({ _id: id });
     if (!foundOrder) throw new NotFoundException('Order not found');
-    await foundOrder.remove();
   }
 }
