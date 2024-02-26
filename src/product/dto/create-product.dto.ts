@@ -13,18 +13,19 @@ import {
 export class CreateProductDto {
   @IsString()
   @IsNotEmpty()
-  @MinLength(3)
+  @MinLength(5)
   @MaxLength(64)
   name: string;
 
-  @IsOptional()
   @IsString()
+  @IsNotEmpty()
+  @MinLength(5)
   @MaxLength(256)
   description: string;
 
-  @IsOptional()
   @IsString()
   @MaxLength(2048)
+  @IsOptional()
   specs: string;
 
   @IsNumber({ allowInfinity: false, allowNaN: false })
@@ -44,7 +45,7 @@ export class CreateProductDto {
 
   @IsArray()
   @IsOptional()
-  images: { id: string | number; url: string }[];
+  images: { id: string; publicId: string; url: string }[];
 
   @IsArray()
   @IsOptional()

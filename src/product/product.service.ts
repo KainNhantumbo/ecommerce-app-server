@@ -37,7 +37,7 @@ export class ProductService {
     if (images.length > 0) {
       if (!this.isProduction) {
         for (const { url } of images) {
-          productImages.push({ publicId: randomUUID(), url });
+          productImages.push({ id: randomUUID(), publicId: randomUUID(), url });
         }
       } else {
         for (const { url } of images) {
@@ -45,6 +45,7 @@ export class ProductService {
             folder: this.cloudFolder
           });
           productImages.push({
+            id: randomUUID(),
             publicId: result.public_id,
             url: result.secure_url
           });
@@ -68,11 +69,11 @@ export class ProductService {
       ];
     }
 
-    if (query.isArchived !== null || query.isArchived !== undefined) {
+    if (!Number.isNaN(Number(query.isArchived))) {
       queryOptions.isArchived = Boolean(Number(query.isArchived));
     }
 
-    if (query.isFeatured !== null || query.isFeatured !== undefined) {
+    if (!Number.isNaN(Number(query.isFeatured))) {
       queryOptions.isFeatured = Boolean(Number(query.isFeatured));
     }
 
@@ -126,7 +127,9 @@ export class ProductService {
       queryResult = queryResult.sort([[property, order as SortOrder]]);
     }
 
-    return await queryResult.lean();
+    const data = await queryResult.lean();
+    console.log(data, queryOptions);
+    return data;
   }
 
   async findOne(id: string) {
@@ -141,54 +144,47 @@ export class ProductService {
 
   async update(id: string, updateProductDto: UpdateProductDto) {
     const { images: incomingImages, ...data } = updateProductDto;
-    const productImages = [];
 
     const foundProduct = await this.product.findOne({ _id: id });
 
     if (!foundProduct) throw new NotFoundException('Product not found.');
 
-    if (Array.isArray(incomingImages) && incomingImages.length > 0) {
-      if (!this.isProduction) {
-        for (const incomingImage of incomingImages) {
-          for (const image of foundProduct.images) {
-            if (incomingImage.id === image.id) {
-              productImages.push({
-                ...image,
-                url: incomingImage.url
-              });
-            } else {
-              productImages.push({
-                id: randomUUID(),
-                publicId: randomUUID(),
-                url: incomingImage.url
-              });
-            }
+    if (Array.isArray(incomingImages)) {
+      if (this.isProduction) {
+        for (const item of foundProduct.images) {
+          // delete the image in the cloud if it doesn't
+          // make part of incoming images
+          if (!incomingImages.some(({ id }) => id === item.id)) {
+            await cloudinaryAPI.uploader.destroy(item.publicId, {
+              invalidate: true
+            });
+          }
+
+          const image = incomingImages.find(({ id }) => id === item.id);
+
+          // updates image data on cloud
+          if (image && image.url !== item.url) {
+            const result = await cloudinaryAPI.uploader.upload(image.url, {
+              folder: this.cloudFolder,
+              public_id: item.publicId
+            });
+
+            incomingImages.map((image) =>
+              image.id === item.id ? { ...item, url: result.url } : image
+            );
           }
         }
-      } else {
-        for (const incomingImage of incomingImages) {
-          for (const image of foundProduct.images) {
-            if (incomingImage.id === image.id) {
-              const result = await cloudinaryAPI.uploader.upload(
-                incomingImage.url,
-                { folder: this.cloudFolder, public_id: image.publicId }
-              );
-              productImages.push({
-                ...image,
-                url: result.url,
-                publicId: result.public_id
-              });
-            } else {
-              const result = await cloudinaryAPI.uploader.upload(
-                incomingImage.url,
-                { folder: this.cloudFolder }
-              );
-              productImages.push({
-                ...image,
-                publicId: result.public_id,
-                url: result.secure_url
-              });
-            }
+
+        // uploads the image if its new
+        for (const image of incomingImages) {
+          if (!foundProduct.images.some((item) => item.id === image.id)) {
+            const result = await cloudinaryAPI.uploader.upload(image.url, {
+              folder: this.cloudFolder
+            });
+
+            incomingImages.map((item) =>
+              item.id === image.id ? { ...item, url: result.url, publicId: result.public_id } : image
+            );
           }
         }
       }
@@ -196,10 +192,7 @@ export class ProductService {
 
     await this.product.findOneAndUpdate(
       { _id: foundProduct._id },
-      {
-        images: productImages.length > 0 ? productImages : foundProduct.images,
-        ...data
-      },
+      { images: incomingImages, ...data },
       { new: true, lean: true, runValidators: true }
     );
   }
@@ -211,7 +204,7 @@ export class ProductService {
 
     if (!foundProduct) throw new NotFoundException('Product not found');
 
-    if (!this.isProduction) {
+    if (this.isProduction) {
       if (foundProduct.images.length > 0) {
         for (const productImage of foundProduct.images) {
           await cloudinaryAPI.uploader.destroy(productImage.publicId, {

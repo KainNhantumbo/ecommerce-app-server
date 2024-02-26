@@ -10,6 +10,7 @@ import configuration from './config/configuration';
 import { HealthModule } from './health/health.module';
 import { ProductModule } from './product/product.module';
 import { UserModule } from './user/user.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -34,7 +35,7 @@ import { UserModule } from './user/user.module';
     AuthModule,
     ProductModule,
     HealthModule,
-    // OrderModule,
+    OrderModule,
     BillboardModule
   ],
   controllers: [],

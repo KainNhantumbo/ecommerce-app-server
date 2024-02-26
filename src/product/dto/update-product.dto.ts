@@ -12,14 +12,16 @@ import {
 export class UpdateProductDto {
   @IsString()
   @IsNotEmpty()
-  @MinLength(3)
-  @MaxLength(21)
+  @MinLength(5)
+  @MaxLength(64)
   @IsOptional()
-  name?: string;
+  name: string;
 
-  @IsOptional()
   @IsString()
+  @IsNotEmpty()
+  @MinLength(5)
   @MaxLength(256)
+  @IsOptional()
   description: string;
 
   @IsOptional()
@@ -45,7 +47,7 @@ export class UpdateProductDto {
 
   @IsArray()
   @IsOptional()
-  images: { id: string | number; url: string }[];
+  images: { id: string; publicId: string; url: string }[];
 
   @IsArray()
   @IsOptional()

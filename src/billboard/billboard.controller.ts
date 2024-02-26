@@ -1,17 +1,17 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   UseGuards
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { BillboardService } from './billboard.service';
 import { CreateBillboardDto } from './dto/create-billboard.dto';
 import { UpdateBillboardDto } from './dto/update-billboard.dto';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('billboards')
 export class BillboardController {
@@ -36,7 +36,8 @@ export class BillboardController {
   @UseGuards(AuthGuard('jwt'))
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id')
+    id: string,
     @Body() updateBillboardDto: UpdateBillboardDto
   ) {
     return this.billboardService.update(id, updateBillboardDto);

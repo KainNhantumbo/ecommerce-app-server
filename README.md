@@ -1,73 +1,100 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+#  🌟 Wecommerce REST API (e-commerce Nest.JS API)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This REST API server application is built to serve its endpoints to WeCommerce application ([see the source code here](https://github.com/KainNhantumbo/ecommerce-app-client)), which is currently under active development.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🤩 Motivation
+I planned to enhance my skills by adding Nest.JS framework to my knowledge tools set. The learning was pretty straightforward and I liked how things are meant to be done base on the framework opinions.
 
-## Description
+But I decided to stick with Express.JS to my future projects. The reason for that is because I felt the Nest.JS framework architecture a bit over-engineered which cuts down some developer experience by pushing the developer way to tight to the framework opinions.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Is great for teams due to its organization, but not for solo developers like me.
 
-## Installation
+## 🌠 Project status
 
-```bash
-$ npm install
-```
+This project is under active development, it means that new features a being backed at meanwhile and to catch all them please refer to the front-end app repository [here](https://github.com/KainNhantumbo/ecommerce-app-client).
 
-## Running the app
+## 🐾 Project Stack
+
+- **Nest.JS** - a robust opinionated framework for building server applications with Node.js
+- **Typescript** - a superset language of Javascript that provides typechecking.
+- **Node.JS** - Javascript runtime.
+- **MongoDB** - database for storing data.
+- **Cloudnary** - provides a cloud assets storage.
+- **Mongoose** - an ORM for connecting application to MongoDB.
+
+## 🏗️ Testing and Local Setup
+
+Make sure you have installed **Node.js (v18.17.0 or later recommended) which also comes with npm v9.6.7**.\
+
+> **IMPORTANT**: - Make sure you add those environment variables below to your .env file:
 
 ```bash
-# development
-$ npm run start
+# NODE ENVIRONMENT (DEVELOPMENT OR PRODUCTION)
+NODE_ENV=
 
-# watch mode
-$ npm run start:dev
+# DEBUG SYSTEM
+NODE_DEBUG=
 
-# production mode
-$ npm run start:prod
+# SERVER PORT
+PORT =
+
+# ALLOWED DOMAINS FOR CORS (COMMA SEPARATED FOR MULTIPLE DOMAINS)
+ALLOWED_DOMAINS=
+
+# CLOUDINARY CONFIGURATION
+CLOUDINARY_NAME =
+CLOUDINARY_API_KEY =
+CLOUDINARY_API_SECRET =
+
+# MONGO DATABASE URL
+DATABASE_URI =
+
+# TOKEN KEYS
+REFRESH_TOKEN=
+ACCESS_TOKEN=
+
+# JWT EXPIRATION TIME
+ACCESS_TOKEN_EXPDATE =
+REFRESH_TOKEN_EXPDATE =
 ```
-
-## Test
+Then, in the project directory, you can run in terminal:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
+npm run dev
 ```
 
-## Support
+Runs the app in the development mode and the server will reload when you make changes to the source code.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+npm run build
+```
 
-## Stay in touch
+Builds the app for production to the **dist folder**.
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+npm run start
+```
 
-## License
+Builds and starts the server in production.
 
-Nest is [MIT licensed](LICENSE).
+## ☘️  Find me!
+
+E-mail: [nhantumbok@gmail.com](nhantumbok@gmail.com 'Send an e-mail')\
+Github: [https://github.com/KainNhantumbo](https://github.com/KainNhantumbo 'See my github profile')
+Portfolio: [https://codenut-dev.vercel.app](https://codenut-dev.vercel.app 'See my portfolio website')\
+My Blog: [https://codenut-dev.vercel.app/blog](https://codenut-dev.vercel.app/blog 'Visit my blog site')
+
+#### If you like this project, let me know by leaving a star on this repository so I can keep improving this app.😊😘
+
+Best regards, Kain Nhantumbo.\
+✌️🇲🇿 **Made with ❤ Nest.JS and Typescript**
+
+## 📜 License
+
+Licensed under Apache License 2.0. All rights reserved.\
+Copyright &copy; 2024 Kain Nhantumbo.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
