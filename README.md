@@ -3,11 +3,11 @@
 This REST API server application is built to serve its endpoints to WeCommerce application ([see the source code here](https://github.com/KainNhantumbo/ecommerce-app-client)), which is currently under active development.
 
 ## 🤩 Motivation
-I planned to enhance my skills by adding Nest.JS framework to my knowledge tools set. The learning was pretty straightforward and I liked how things are meant to be done base on the framework opinions.
+I planned to enhance my skills by adding Nest.JS framework to my knowledge tools set. The learning journey was pretty straightforward and I liked how things are meant to be done base on the framework opinions.
 
-But I decided to stick with Express.JS to my future projects. The reason for that is because I felt the Nest.JS framework architecture a bit over-engineered which cuts down some developer experience by pushing the developer way to tight to the framework opinions.
+But I decided to stick with Express.JS to my future projects. The reason for that is because I felt the Nest.JS framework architecture a bit over-engineered which cuts down some developer experience by pushing the developer way to tight to the framework opinions. Also I noticed that some operation are too complicated to integrate than it needs to be, cutting development speed and flexibility.
 
-Is great for teams due to its organization, but not for solo developers like me.
+It might be great for teams due to it's file structure organization or high scale application (subjectively), but for solo developers like me, can be easily overwhelming.
 
 ## 🌠 Project status
 
