@@ -128,7 +128,6 @@ export class ProductService {
     }
 
     const data = await queryResult.lean();
-    console.log(data, queryOptions);
     return data;
   }
 
@@ -143,7 +142,8 @@ export class ProductService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
-    const { images: incomingImages, ...data } = updateProductDto;
+    // eslint-disable-next-line prefer-const
+    let { images: incomingImages, ...data } = updateProductDto;
 
     const foundProduct = await this.product.findOne({ _id: id });
 
@@ -169,7 +169,7 @@ export class ProductService {
               public_id: item.publicId
             });
 
-            incomingImages.map((image) =>
+            incomingImages = incomingImages.map((image) =>
               image.id === item.id ? { ...item, url: result.url } : image
             );
           }
@@ -182,11 +182,21 @@ export class ProductService {
               folder: this.cloudFolder
             });
 
-            incomingImages.map((item) =>
-              item.id === image.id ? { ...item, url: result.url, publicId: result.public_id } : image
+            incomingImages = incomingImages.map((item) =>
+              item.id === image.id
+                ? { ...item, url: result.url, publicId: result.public_id }
+                : image
             );
           }
         }
+      } else {
+        incomingImages = incomingImages.map((image) => {
+          if (image?.publicId == undefined) {
+            console.log({ ...image, publicId: randomUUID() });
+            return { ...image, publicId: randomUUID() };
+          }
+          return image;
+        });
       }
     }
 
