@@ -31,8 +31,18 @@ export class ProductService {
   }
 
   async create(createProductDto: CreateProductDto) {
-    const { images, ...data } = createProductDto;
+    const { images, sizes, colors, ...data } = createProductDto;
     const productImages = [];
+
+    if (sizes.length < 1)
+      throw new BadRequestException(
+        'Please select one or more sizes for each product.'
+      );
+
+    if (colors.length < 1)
+      throw new BadRequestException(
+        'Please select one or more colors for each product.'
+      );
 
     if (images.length > 0) {
       if (!this.isProduction) {
@@ -53,7 +63,12 @@ export class ProductService {
       }
     }
 
-    return await this.product.create({ images: productImages, ...data });
+    return await this.product.create({
+      images: productImages,
+      sizes,
+      colors,
+      ...data
+    });
   }
 
   async findAll(query: ProductQueryDto): Promise<Product[]> {

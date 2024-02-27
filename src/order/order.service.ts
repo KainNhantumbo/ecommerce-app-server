@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product } from '../product/product.schema';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { Order } from './order.schema';
+import { isMongoId } from 'class-validator';
 
 @Injectable()
 export class OrderService {
@@ -36,18 +41,27 @@ export class OrderService {
       }
     });
 
-    return this.order.create({
-      ...data,
-      items: cart
-    });
+    return await this.order.create({ ...data, items: cart });
   }
 
   async findAll() {
-    return this.order.find().lean();
+    return await this.order.find().lean();
+  }
+
+  async findOne(id: string) {
+    if (!isMongoId(id))
+      throw new BadRequestException(
+        'Invalid resource ID. Please correct and try again.'
+      );
+    return await this.order.findOne({ _id: id }).lean();
   }
 
   async remove(id: string) {
-    const foundOrder = await this.order.findOneAndDelete({ _id: id });
+    if (!isMongoId(id))
+      throw new BadRequestException(
+        'Invalid resource ID. Please correct and try again.'
+      );
+    const foundOrder = await this.order.findOneAndDelete({ _id: id }).lean();
     if (!foundOrder) throw new NotFoundException('Order not found');
   }
 }

@@ -27,6 +27,12 @@ export class OrderController {
   }
 
   @UseGuards(AuthGuard('jwt'))
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.orderService.findOne(id);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.orderService.remove(id);
