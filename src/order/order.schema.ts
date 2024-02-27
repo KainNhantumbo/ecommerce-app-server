@@ -34,14 +34,16 @@ export class Order implements IOrder {
   isPaid: boolean;
 
   @Prop(
-    raw({
-      productId: { type: Types.ObjectId, ref: Product.name },
-      quantity: { type: Number, default: 0, min: 0 },
-      sizes: [{ type: String }],
-      name: { type: String },
-      price: { type: Number, default: 0, min: 0 },
-      colors: [{ type: String }]
-    })
+    raw([
+      {
+        productId: { type: Types.ObjectId, ref: Product.name, required: true },
+        quantity: { type: Number, default: 1, min: 1, required: true },
+        sizes: [{ type: String, required: true }],
+        name: { type: String, required: true },
+        price: { type: Number, default: 0, min: 0, required: true },
+        colors: [{ type: String, required: true }]
+      }
+    ])
   )
   items: {
     productId: string;

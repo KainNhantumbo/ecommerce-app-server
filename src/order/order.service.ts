@@ -20,28 +20,31 @@ export class OrderService {
   async create(createOrderDto: CreateOrderDto) {
     const { items, ...data } = createOrderDto;
 
-    const cart = (
-      await this.product
-        .find({
-          _id: { $in: items.map((item) => item.productId) }
-        })
-        .select('name price')
-    ).map((product) => {
-      for (const item of items) {
-        if (item.productId === String(product._id)) {
-          return {
-            name: product.name,
-            productId: product._id,
-            price: product.price,
-            sizes: item.sizes,
-            colors: item.colors,
-            quantity: item.quantity
-          };
-        }
-      }
-    });
+    const foundProducts = await this.product
+      .find({
+        _id: { $in: items.map((item) => item.productId) }
+      })
+      .select('name price');
 
-    return await this.order.create({ ...data, items: cart });
+      console.log(foundProducts)
+
+    return await this.order.create({
+      ...data,
+      items: foundProducts.map((product) => {
+        for (const item of items) {
+          if (item.productId === String(product._id)) {
+            return {
+              name: product.name,
+              productId: product._id,
+              price: product.price,
+              sizes: item.sizes,
+              colors: item.colors,
+              quantity: item.quantity
+            };
+          }
+        }
+      })
+    });
   }
 
   async findAll() {

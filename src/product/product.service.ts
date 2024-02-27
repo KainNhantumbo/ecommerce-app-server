@@ -121,7 +121,7 @@ export class ProductService {
       if (fields.length < 1)
         throw new BadRequestException('Fields query format error.');
 
-      queryResult = queryResult.select(fields.join());
+      queryResult = queryResult.select(fields.join(' '));
     }
 
     if (query.sort) {
