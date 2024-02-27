@@ -1,10 +1,11 @@
-import { IsArray, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString, MinLength, MaxLength } from 'class-validator';
 
 export class CreateOrderDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(5)
-  costumerName: string;
+  @MaxLength(64)
+  customerName: string;
 
   @IsArray()
   items: {

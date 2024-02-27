@@ -62,28 +62,36 @@ export class ProductService {
     if (query.search) {
       queryOptions['$or'] = [
         {
-          name: { $regex: String(query.search), $option: 'i' },
-          specs: { $regex: String(query.search), $option: 'i' },
-          description: { $regex: String(query.search), $option: 'i' }
+          name: { $regex: String(query.search), $options: 'i' },
+          specs: { $regex: String(query.search), $options: 'i' },
+          description: { $regex: String(query.search), $options: 'i' }
         }
       ];
     }
 
-    if (!Number.isNaN(Number(query.isArchived))) {
-      queryOptions.isArchived = Boolean(Number(query.isArchived));
+    if (query.archived === '0' || query.archived === '1') {
+      queryOptions.isArchived = Boolean(Number(query.archived));
     }
 
-    if (!Number.isNaN(Number(query.isFeatured))) {
-      queryOptions.isFeatured = Boolean(Number(query.isFeatured));
+    if (query.featured === '0' || query.featured === '1') {
+      queryOptions.isFeatured = Boolean(Number(query.featured));
     }
 
     if (query.category) {
-      queryOptions.category = { value: String(query.category) };
+      queryOptions.category = {
+        value: { $regex: String(query.category), $options: 'i' }
+      };
     }
 
     if (query.size) {
       queryOptions.sizes = {
         $elemMatch: { value: { $regex: String(query.size), $options: 'i' } }
+      };
+    }
+
+    if (query.color) {
+      queryOptions.colors = {
+        $elemMatch: { value: { $regex: String(query.color), $options: 'i' } }
       };
     }
 
@@ -125,6 +133,8 @@ export class ProductService {
       }
 
       queryResult = queryResult.sort([[property, order as SortOrder]]);
+    } else {
+      queryResult = queryResult.sort([['updatedAt', 'desc']]);
     }
 
     const data = await queryResult.lean();

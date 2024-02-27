@@ -39,9 +39,9 @@ export class ProductQueryDto {
 
   @IsOptional()
   @IsString()
-  isFeatured?: string;
+  featured?: string;
 
   @IsOptional()
   @IsString()
-  isArchived?: string;
+  archived?: string;
 }
