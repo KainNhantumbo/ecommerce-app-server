@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Nest.JS Tasks API",
   "private": true,
+  "url": "https://tame-cyan-magpie-hose.cyclic.app",
   "author": {
     "name": "Kain Nhantumbo",
     "email": "nhantumbok@gmail.com",
@@ -19,7 +20,8 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
+    "start": "node dist/main",
+    "start:dev": "nest start",
     "dev": "nest start swc -w",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
