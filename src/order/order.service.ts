@@ -9,6 +9,7 @@ import { Product } from '../product/product.schema';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { Order } from './order.schema';
 import { isMongoId } from 'class-validator';
+import { OrderQueryDto } from './dto/query-order.dto';
 
 @Injectable()
 export class OrderService {
@@ -26,7 +27,7 @@ export class OrderService {
       })
       .select('name price');
 
-      console.log(foundProducts)
+    console.log(foundProducts);
 
     return await this.order.create({
       ...data,
@@ -47,8 +48,15 @@ export class OrderService {
     });
   }
 
-  async findAll() {
-    return await this.order.find().lean();
+  async findAll({ fields }: OrderQueryDto) {
+    let query = this.order.find();
+
+    if (fields) {
+      const strings = String(fields).split(',').join(' ');
+      query = query.select(strings);
+    }
+
+    return await query.lean();
   }
 
   async findOne(id: string) {

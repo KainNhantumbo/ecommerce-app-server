@@ -6,12 +6,14 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { BillboardService } from './billboard.service';
 import { CreateBillboardDto } from './dto/create-billboard.dto';
 import { UpdateBillboardDto } from './dto/update-billboard.dto';
+import { BillboardQueryDto } from './dto/query-billboard.dto';
 
 @Controller('billboards')
 export class BillboardController {
@@ -24,8 +26,8 @@ export class BillboardController {
   }
 
   @Get()
-  findAll() {
-    return this.billboardService.findAll();
+  findAll(@Query() query: BillboardQueryDto) {
+    return this.billboardService.findAll(query);
   }
 
   @Get(':id')

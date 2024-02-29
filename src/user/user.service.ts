@@ -10,13 +10,25 @@ import { Model } from 'mongoose';
 import { encryptPassword } from '../utils/encrypt-utils';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './user.schema';
+import { UserQueryDto } from './dto/query-user.dto';
 
 @Injectable()
 export class UserService {
   constructor(@InjectModel(User.name) private user: Model<User>) {}
 
-  async findAll(): Promise<User[]> {
-    return await this.user.find({}).select('-password').lean();
+  async findAll({ fields }: UserQueryDto): Promise<User[]> {
+    let query = this.user.find();
+    if (fields) {
+      const strings = String(fields).split(',').join(' ');
+      query = query.select(strings)
+    }
+
+    const data = await query.lean();
+
+    return data.map((user) => {
+      delete user.password;
+      return user;
+    });
   }
 
   async findOneById(id: string) {

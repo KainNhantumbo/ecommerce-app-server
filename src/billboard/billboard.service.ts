@@ -7,6 +7,7 @@ import { cloudinaryAPI } from '../config/cloudinary';
 import { Billboard } from './billboard.schema';
 import { CreateBillboardDto } from './dto/create-billboard.dto';
 import { UpdateBillboardDto } from './dto/update-billboard.dto';
+import { BillboardQueryDto } from './dto/query-billboard.dto';
 
 @Injectable()
 export class BillboardService {
@@ -48,8 +49,15 @@ export class BillboardService {
     });
   }
 
-  async findAll() {
-    return await this.billboard.find({});
+  async findAll({ fields }: BillboardQueryDto) {
+    let query = this.billboard.find();
+
+    if (fields) {
+      const strings = String(fields).split(',').join(' ');
+      query = query.select(strings);
+    }
+
+    return await query.lean();
   }
 
   async findOne(id: string) {

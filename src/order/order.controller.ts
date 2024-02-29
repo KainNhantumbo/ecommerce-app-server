@@ -5,11 +5,13 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UseGuards
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderService } from './order.service';
+import { OrderQueryDto } from './dto/query-order.dto';
 
 @Controller('orders')
 export class OrderController {
@@ -22,8 +24,8 @@ export class OrderController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  findAll() {
-    return this.orderService.findAll();
+  findAll(@Query() query: OrderQueryDto) {
+    return this.orderService.findAll(query);
   }
 
   @UseGuards(AuthGuard('jwt'))
