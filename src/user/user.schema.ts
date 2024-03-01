@@ -24,10 +24,10 @@ export class User implements IUser {
   @Prop({ type: String, required: true, unique: true })
   email: string;
 
-  @Prop({ type: String, required: true, enum: [...roles] })
+  @Prop({ type: String, default: roles[0], enum: [...roles] })
   role: string;
 
-  @Prop({ type: String, required: true, enum: [...roles] })
+  @Prop({ type: String, default: roles[0], enum: [...roles] })
   employeeId: string;
 
   @Prop({ type: String, required: true })

@@ -3,6 +3,7 @@ import { HydratedDocument } from 'mongoose';
 
 export interface IBillboard {
   readonly label: string;
+  readonly isArchived: boolean;
   readonly image: {
     publicId: string;
     url: string;
@@ -15,6 +16,9 @@ export interface BillboardDocument extends HydratedDocument<Billboard> {}
 export class Billboard implements IBillboard {
   @Prop({ type: String })
   label: string;
+
+  @Prop({ type: Boolean, default: false })
+  isArchived: boolean;
 
   @Prop(
     raw({

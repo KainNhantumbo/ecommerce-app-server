@@ -2,7 +2,9 @@
 /dist
 /node_modules
 src/metadata.ts
+
 .env
+.env.local
 
 # Logs
 logs
