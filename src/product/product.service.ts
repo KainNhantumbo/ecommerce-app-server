@@ -23,10 +23,8 @@ export class ProductService {
     @InjectModel(Product.name) private product: Model<Product>
   ) {
     this.isProduction =
-      this.config.getOrThrow<string>('NODE_ENV') === 'development'
-        ? false
-        : true;
-
+      this.config.getOrThrow<'development' | 'production'>('NODE_ENV') ===
+      'production';
     this.cloudFolder = '/we-commerce/products';
   }
 
@@ -170,7 +168,10 @@ export class ProductService {
     // eslint-disable-next-line prefer-const
     let { images: incomingImages, ...data } = updateProductDto;
 
-    const foundProduct = await this.product.findOne({ _id: id });
+    const foundProduct = await this.product
+      .findOne({ _id: id })
+      .select('images')
+      .lean();
 
     if (!foundProduct) throw new NotFoundException('Product not found.');
 

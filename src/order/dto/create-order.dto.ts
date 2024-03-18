@@ -1,4 +1,10 @@
-import { IsArray, IsNotEmpty, IsString, MinLength, MaxLength } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+  MaxLength
+} from 'class-validator';
 
 export class CreateOrderDto {
   @IsString()

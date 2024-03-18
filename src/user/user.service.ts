@@ -20,7 +20,7 @@ export class UserService {
     let query = this.user.find();
     if (fields) {
       const strings = String(fields).split(',').join(' ');
-      query = query.select(strings)
+      query = query.select(strings);
     }
 
     const data = await query.lean();
