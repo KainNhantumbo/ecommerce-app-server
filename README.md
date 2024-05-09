@@ -81,7 +81,7 @@ Builds and starts the server in production.
 ## ☘️  Find me!
 
 E-mail: [nhantumbok@gmail.com](nhantumbok@gmail.com 'Send an e-mail')\
-Github: [https://github.com/KainNhantumbo](https://github.com/KainNhantumbo 'See my github profile')
+Github: [https://github.com/KainNhantumbo](https://github.com/KainNhantumbo 'See my github profile')\
 Portfolio: [https://codenut-dev.vercel.app](https://codenut-dev.vercel.app 'See my portfolio website')\
 My Blog: [https://codenut-dev.vercel.app/blog](https://codenut-dev.vercel.app/blog 'Visit my blog site')
 
