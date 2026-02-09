@@ -62,7 +62,7 @@
     "stripe": "^14.25.0"
   },
   "devDependencies": {
-    "@nestjs/cli": "^11.0.11",
+    "@nestjs/cli": "^11.0.16",
     "@nestjs/schematics": "^10.2.3",
     "@nestjs/testing": "^11.1.5",
     "@swc/cli": "^0.6.0",
