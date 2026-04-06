@@ -37,7 +37,7 @@
     "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^10.4.17",
     "@nestjs/config": "^3.3.0",
-    "@nestjs/core": "^11.1.5",
+    "@nestjs/core": "^11.1.18",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/mongoose": "^10.1.0",
     "@nestjs/passport": "^10.0.3",
