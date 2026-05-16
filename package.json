@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@nestjs/cache-manager": "^3.0.1",
-    "@nestjs/common": "^10.4.17",
+    "@nestjs/common": "^11.1.19",
     "@nestjs/config": "^3.3.0",
     "@nestjs/core": "^11.1.18",
     "@nestjs/jwt": "^10.2.0",
@@ -65,7 +65,7 @@
     "@nestjs/cli": "^11.0.21",
     "@nestjs/schematics": "^11.1.0",
     "@nestjs/testing": "^11.1.5",
-    "@swc/cli": "^0.6.0",
+    "@swc/cli": "^0.8.1",
     "@swc/core": "^1.10.8",
     "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.8",
